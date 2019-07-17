@@ -1,0 +1,67 @@
+variables: 
+  location: westus
+  groupId: cse01
+  abbrevLocationName: westus
+  instanceCount: 1
+  identifier: sample-int-account
+  sampleDirectory: integration-account-connections
+  sharedResourceGroupIdentifier: shared
+
+trigger:
+- master
+
+stages:
+- stage: Development
+  jobs:
+  - job: DeployDevelopmentEnvironment
+    variables:
+      environment: d
+    pool: 
+      vmImage: 'windows-2019'
+    steps:
+    - script: |
+        echo ##vso[task.setvariable variable=resourceGroupName]$(groupId)$(environment)rgp$(location)-$(sharedResourceGroupIdentifier)
+        echo ##vso[task.setvariable variable=templateFilePath]$(Build.Repository.LocalPath)\$(sampleDirectory)\templates\shared-template.json
+        echo ##vso[task.setvariable variable=logicAppDeployScript]$(Build.Repository.LocalPath)\$(sampleDirectory)\powershell\logic-app-deploy.ps1
+      name: setDynamicVariableNames
+    - powershell: |
+        Write-Host "templateFilePath: $(templateFilePath)"
+        Write-Host "resourceGroupName: $(resourceGroupName)"
+        Write-Host "logicAppDeployScript: $(logicAppDeployScript)"
+      name: printOutVariables
+    - task: AzureResourceGroupDeployment@2
+      name: SharedResourcesDeployment
+      inputs:
+        azureSubscription: 'Azure Samples Subscription'
+        action: 'Create Or Update Resource Group'
+        resourceGroupName: $(resourceGroupName)
+        location: $(location)
+        templateLocation: Linked artifact
+        csmFile: $(templateFilePath)
+        deploymentMode: 'Incremental'
+        deploymentName: $(Build.BuildNumber)
+        overrideParameters: -groupId $(groupId) -environment $(environment) -locationName $(abbrevLocationName)
+    - script: |
+        echo ##vso[task.setvariable variable=connectorsTemplateFilePath]$(Build.Repository.LocalPath)\$(sampleDirectory)\templates\connectors-template.json
+        echo ##vso[task.setvariable variable=logicAppTemplateFilePath]$(Build.Repository.LocalPath)\$(sampleDirectory)\templates\logic-app-template.json
+        echo ##vso[task.setvariable variable=logicAppDefinitionPath]$(Build.Repository.LocalPath)\$(sampleDirectory)\templates\logic-app-definition.json
+        echo ##vso[task.setvariable variable=logicAppDefinitionParametersFilePath]$(Build.Repository.LocalPath)\$(sampleDirectory)\templates\logic-app-definition-parameters.json
+    - task: AzurePowerShell@4
+      name: DeployLogicAppSample
+      inputs:
+        azureSubscription: 'Azure Samples Subscription'
+        ScriptType: 'FilePath'
+        ScriptPath: '$(logicAppDeployScript)'
+        FailOnStandardError: true
+        azurePowerShellVersion: LatestVersion
+        ScriptArguments: >-
+          -groupId $(groupId) 
+          -location $(location) 
+          -abbrevLocationName $(abbrevLocationName) 
+          -environment $(environment) 
+          -instanceCount $(instanceCount) 
+          -identifier $(identifier) 
+          -connectorsTemplateFilePath $(connectorsTemplateFilePath) 
+          -logicAppTemplateFilePath $(logicAppTemplateFilePath) 
+          -logicAppDefinitionPath $(logicAppDefinitionPath) 
+          -logicAppDefinitionParametersFilePath $(logicAppDefinitionParametersFilePath)

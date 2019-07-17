@@ -1,0 +1,96 @@
+{
+    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "$connections": {
+            "defaultValue": {},
+            "type": "Object"
+        }
+    },
+    "triggers": {
+        "When_a_message_is_received_in_a_queue_(peek-lock)": {
+            "recurrence": {
+                "frequency": "Minute",
+                "interval": 1
+            },
+            "type": "ApiConnection",
+            "inputs": {
+                "host": {
+                    "connection": {
+                        "name": "@parameters('$connections')['servicebus-1']['connectionId']"
+                    }
+                },
+                "method": "get",
+                "path": "/@{encodeURIComponent(encodeURIComponent('queue_1'))}/messages/head/peek",
+                "queries": {
+                    "queueType": "Main",
+                    "sessionId": "None"
+                }
+            }
+        }
+    },
+    "actions": {
+        "Complete_the_message_in_a_queue": {
+            "runAfter": {
+                "Send_message": [
+                    "Succeeded"
+                ]
+            },
+            "type": "ApiConnection",
+            "inputs": {
+                "host": {
+                    "connection": {
+                        "name": "@parameters('$connections')['servicebus-1']['connectionId']"
+                    }
+                },
+                "method": "delete",
+                "path": "/@{encodeURIComponent(encodeURIComponent('queue_1'))}/messages/complete",
+                "queries": {
+                    "lockToken": "@triggerBody()?['LockToken']",
+                    "queueType": "Main",
+                    "sessionId": ""
+                }
+            }
+        },
+        "Initialize_variable": {
+            "runAfter": {},
+            "type": "InitializeVariable",
+            "inputs": {
+                "variables": [
+                    {
+                        "name": "awesomeStuff",
+                        "type": "String",
+                        "value": "HappensHere"
+                    }
+                ]
+            }
+        },
+        "Send_message": {
+            "runAfter": {
+                "Initialize_variable": [
+                    "Succeeded"
+                ]
+            },
+            "type": "ApiConnection",
+            "inputs": {
+                "body": {
+                    "ContentData": "@{triggerBody()?['ContentData']}",
+                    "ContentType": "@triggerBody()?['ContentType']",
+                    "CorrelationId": "@triggerBody()?['CorrelationId']",
+                    "Properties": "@triggerBody()?['Properties']"
+                },
+                "host": {
+                    "connection": {
+                        "name": "@parameters('$connections')['servicebus-2']['connectionId']"
+                    }
+                },
+                "method": "post",
+                "path": "/@{encodeURIComponent(encodeURIComponent('queue_2'))}/messages",
+                "queries": {
+                    "systemProperties": "None"
+                }
+            }
+        }
+    },
+    "outputs": {}
+}

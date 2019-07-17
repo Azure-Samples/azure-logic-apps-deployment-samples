@@ -1,0 +1,176 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "groupId": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of group to create resource names using"
+      }
+    },
+    "environment": {
+      "type": "string",
+      "defaultValue": "d",
+      "metadata": {
+        "description": "Letter identifying the environment the resources are in e.g. d for Development, t for test, etc..."
+      }
+    },
+    "locationName": {
+      "type": "string",
+      "metadata": {
+        "description": "Value used to identify the location within the name of resources (usually a shortened version of the region name)"
+      }
+    },
+    "identifier": {
+      "type": "string",
+      "metadata": {
+        "description": "Value appended to the end of the logic app name to identify it's purpose/function"
+      }
+    },
+    "instance": {
+      "type": "int",
+      "defaultValue": 1,
+      "metadata": {
+        "description": "The instance count for the resources group"
+      }
+    }
+  },
+  "variables": {
+    "location": "[resourceGroup().location]",
+    "baseName": "[concat(parameters('groupId'), parameters('environment'))]",
+    "sharedResourceGroupName": "[toLower(concat(variables('baseName'), 'rgp', variables('location'), '-shared'))]",
+    "baseConnectionsId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', variables('location'), '/managedApis/')]",
+    "storageAccountName": "[toLower(concat(variables('baseName'), 'sa2', parameters('locationName')))]",
+    "storageAccountId": "[resourceId(subscription().subscriptionId, variables('sharedResourceGroupName'), 'Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
+    "tablesConnectionName": "azuretables",
+    "tablesConnectionId": "[concat(variables('baseConnectionsId'), 'azuretables')]",
+    "blobConnectionName": "azureblob",
+    "blobConnectionId": "[concat(variables('baseConnectionsId'), 'azureblob')]",
+    "fileConnectionName": "azurefile",
+    "fileConnectionId": "[concat(variables('baseConnectionsId'), 'azurefile')]",
+    "queuesConnectionName": "azurequeues",
+    "queuesConnectionId": "[concat(variables('baseConnectionsId'), 'azurequeues')]",
+    "instance": "[if(equals(parameters('instance'), 1), '', concat('-', sub(parameters('instance'), 1)))]",
+    "logicAppName": "[toLower(concat(variables('baseName'), 'la', parameters('locationName'), '-', parameters('identifier'), variables('instance')))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Web/connections",
+      "apiVersion": "2016-06-01",
+      "name": "[variables('tablesConnectionName')]",
+      "location": "[variables('location')]",
+      "tags": {
+        "groupdId": "[parameters('groupId')]"
+      },
+      "properties": {
+        "displayName": "storageAccount",
+        "customParameterValues": {},
+        "api": {
+          "id": "[variables('tablesConnectionId')]"
+        },
+        "parameterValues": {
+          "storageaccount": "[variables('storageAccountName')]",
+          "sharedkey": "[listKeys(variables('storageAccountId'), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Web/connections",
+      "apiVersion": "2016-06-01",
+      "name": "[variables('queuesConnectionName')]",
+      "location": "[variables('location')]",
+      "tags": {
+        "groupdId": "[parameters('groupId')]"
+      },
+      "properties": {
+        "displayName": "storageAccount",
+        "customParameterValues": {},
+        "api": {
+          "id": "[variables('queuesConnectionId')]"
+        },
+        "parameterValues": {
+          "storageaccount": "[variables('storageAccountName')]",
+          "sharedkey": "[listKeys(variables('storageAccountId'), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Web/connections",
+      "apiVersion": "2016-06-01",
+      "name": "[variables('blobConnectionName')]",
+      "location": "[variables('location')]",
+      "tags": {
+        "groupdId": "[parameters('groupId')]"
+      },
+      "properties": {
+        "displayName": "storageAccount",
+        "customParameterValues": {},
+        "api": {
+          "id": "[variables('blobConnectionId')]"
+        },
+        "parameterValues": {
+          "accountName": "[variables('storageAccountName')]",
+          "accessKey": "[listKeys(variables('storageAccountId'), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Web/connections",
+      "apiVersion": "2016-06-01",
+      "name": "[variables('fileConnectionName')]",
+      "location": "[variables('location')]",
+      "tags": {
+        "groupdId": "[parameters('groupId')]"
+      },
+      "properties": {
+        "displayName": "storageAccount",
+        "customParameterValues": {},
+        "api": {
+          "id": "[variables('fileConnectionId')]"
+        },
+        "parameterValues": {
+          "accountName": "[variables('storageAccountName')]",
+          "accessKey": "[listKeys(variables('storageAccountId'), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "tablesManagedApiId": {
+      "type": "string",
+      "value": "[variables('tablesConnectionId')]"
+    },
+    "tablesConnId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Web/connections', variables('tablesConnectionName'))]"
+    },
+    "fileManagedApiId": {
+      "type": "string",
+      "value": "[variables('fileConnectionId')]"
+    },
+    "fileConnId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Web/connections', variables('fileConnectionName'))]"
+    },
+    "blobManagedApiId": {
+      "type": "string",
+      "value": "[variables('blobConnectionId')]"
+    },
+    "blobConnId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Web/connections', variables('blobConnectionName'))]"
+    },
+    "queuesManagedApiId": {
+      "type": "string",
+      "value": "[variables('queuesConnectionId')]"
+    },
+    "queuesConnId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Web/connections', variables('queuesConnectionName'))]"
+    },
+    "logicAppName": {
+      "type": "string",
+      "value": "[variables('logicAppName')]"
+    }
+  }
+}

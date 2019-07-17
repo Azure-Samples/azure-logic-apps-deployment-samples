@@ -1,0 +1,108 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "groupId": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of group to create resource names using"
+      }
+    },
+    "environment": {
+      "type": "string",
+      "defaultValue": "d",
+      "metadata": {
+        "description": "Letter identifying the environment the resources are in e.g. d for Development, t for test, etc..."
+      }
+    },
+    "locationName": {
+      "type": "string",
+      "metadata": {
+        "description": "Value used to identify the location within the name of resources (usually a shortened version of the region name)"
+      }
+    },
+    "identifier": {
+      "type": "string",
+      "metadata": {
+        "description": "Value appended to the end of the logic app name to identify it's purpose/function"
+      }
+    },
+    "instance": {
+      "type": "int",
+      "defaultValue": 1,
+      "metadata": {
+        "description": "The instance count for the resources group"
+      }
+    }
+  },
+  "variables": {
+    "location": "[resourceGroup().location]",
+    "baseName": "[concat(parameters('groupId'), parameters('environment'))]",
+    "sharedResourceGroupName": "[toLower(concat(variables('baseName'), 'rgp', variables('location'), '-shared'))]",
+    "servicesBusName": "[toLower(concat(variables('baseName'), 'sb', parameters('locationName')))]",
+    "serviceBusAuthRuleId": "[resourceId(subscription().subscriptionId, variables('sharedResourceGroupName'), 'Microsoft.ServiceBus/namespaces/authorizationRules', variables('servicesBusName'), 'RootManageSharedAccessKey')]",
+    "baseConnectionsId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', variables('location'), '/managedApis/')]",
+    "serviceBusConnectionName": "servicebus",
+    "serviceBusConnectionId": "[concat(variables('baseConnectionsId'), 'servicebus')]",
+    "instance": "[if(equals(parameters('instance'), 1), '', concat('-', sub(parameters('instance'), 1)))]",
+    "logicAppName": "[toLower(concat(variables('baseName'), 'la', parameters('locationName'), '-', parameters('identifier'), variables('instance')))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Web/connections",
+      "apiVersion": "2016-06-01",
+      "name": "[concat(variables('serviceBusConnectionName'), '-1')]",
+      "location": "[variables('location')]",
+      "tags": {
+        "groupdId": "[parameters('groupId')]"
+      },
+      "properties": {
+        "displayName": "[variables('serviceBusConnectionName')]",
+        "customParameterValues": {},
+        "api": {
+          "id": "[variables('serviceBusConnectionId')]"
+        },
+        "parameterValues": {
+          "connectionString": "[listKeys(variables('ServiceBusAuthRuleId'), '2015-08-01').primaryConnectionString]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Web/connections",
+      "apiVersion": "2016-06-01",
+      "name": "[concat(variables('serviceBusConnectionName'), '-2')]",
+      "location": "[variables('location')]",
+      "tags": {
+        "groupdId": "[parameters('groupId')]"
+      },
+      "properties": {
+        "displayName": "[variables('serviceBusConnectionName')]",
+        "customParameterValues": {},
+        "api": {
+          "id": "[variables('serviceBusConnectionId')]"
+        },
+        "parameterValues": {
+          "connectionString": "[listKeys(variables('ServiceBusAuthRuleId'), '2015-08-01').primaryConnectionString]"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "serviceBusManagedApiId": {
+      "type": "string",
+      "value": "[variables('serviceBusConnectionId')]"
+    },
+    "serviceBusConnId1": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Web/connections', concat(variables('serviceBusConnectionName'), '-1'))]"
+    },
+    "serviceBusConnId2": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Web/connections', concat(variables('serviceBusConnectionName'), '-2'))]"
+    },
+    "logicAppName": {
+      "type": "string",
+      "value": "[variables('logicAppName')]"
+    }
+  }
+}

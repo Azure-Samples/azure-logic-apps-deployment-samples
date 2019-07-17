@@ -1,0 +1,84 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "groupId": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of group to create resource names using"
+            }
+        },
+        "environment": {
+            "type": "string",
+            "defaultValue": "d",
+            "metadata": {
+                "description": "Letter identifying the environment the resources are in e.g. d for Development, t for test, etc..."
+            }
+        },
+        "locationName": {
+            "type": "string",
+            "metadata": {
+                "description": "Value used to identify the location within the name of resources (usually a shortened version of the region name)"
+            }
+        },
+        "containers": {
+            "type": "array",
+            "defaultValue": [
+                "samplecontainer1",
+                "samplecontainer2"
+            ],
+            "metadata": {
+                "description": "Array of containers to create"
+            }
+        }
+    },
+    "variables": {
+        "location": "[resourceGroup().location]",
+        "baseName": "[concat(parameters('groupId'), parameters('environment'))]",
+        "storageAccountName": "[toLower(concat(variables('baseName'), 'sa2', parameters('locationName')))]"
+    },
+    "resources": [
+        {
+            "name": "[variables('storageAccountName')]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2019-04-01",
+            "tags": {
+                "groupdId": "[parameters('groupId')]"
+            },
+            "sku": {
+                "name": "Standard_LRS"
+            },
+            "kind": "StorageV2",
+            "location": "[variables('location')]",
+            "properties": {
+                "accessTier": "Hot"
+            },
+            "resources": []
+        },
+        {
+            "name": "[concat(variables('storageAccountName'), '/default/',toLower(parameters('containers')[copyindex()]))]",
+            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+            "apiVersion": "2019-04-01",
+            "tags": {
+                "groupdId": "[parameters('groupId')]"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+            ],
+            "copy": {
+                "name": "containerCopy",
+                "count": "[length(parameters('containers'))]"
+            },
+            "properties": {
+                "publicAccess": "Container"
+            },
+            "resources": []
+        }
+    ],
+    "outputs": {
+        "storageAccountName": {
+            "type": "string",
+            "value": "[variables('storageAccountName')]"
+        }
+    }
+}

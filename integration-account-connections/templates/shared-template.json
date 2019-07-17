@@ -1,0 +1,57 @@
+    {
+        "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+        "contentVersion": "1.0.0.0",
+        "parameters": {
+            "groupId": {
+                "type": "string",
+                "metadata": {
+                    "description": "Name of group to create resource names using"
+                }
+            },
+            "environment": {
+                "type": "string",
+                "defaultValue": "d",
+                "metadata": {
+                    "description": "Letter identifying the environment the resources are in e.g. d for Development, t for test, etc..."
+                }
+            },
+            "locationName": {
+                "type": "string",
+                "metadata": {
+                    "description": "Value used to identify the location within the name of resources (usually a shortened version of the region name)"
+                }
+            },
+            "intregrationAccountSku": {
+                "type": "string",
+                "allowedValues": [
+                    "Free",
+                    "Standard"
+                ],
+                "defaultValue": "Free",
+                "metadata": {
+                    "description": "Sku for the integration account"
+                }
+            }
+        },
+        "variables": {
+            "location": "[resourceGroup().location]",
+            "baseName": "[concat(parameters('groupId'), parameters('environment'))]",
+            "integrationAccountName": "[toLower(concat(variables('baseName'), 'iact', parameters('locationName')))]"
+        },
+        "resources": [
+            {
+                "name": "[variables('integrationAccountName')]",
+                "type": "Microsoft.Logic/integrationAccounts",
+                "apiVersion": "2016-06-01",
+                "location": "[variables('location')]",
+                "tags": {
+                    "groupdId": "[parameters('groupId')]"
+                },
+                "properties": {},
+                "sku": {
+                    "name": "[parameters('intregrationAccountSku')]"
+                },
+                "resources": []
+            }
+        ]
+    }

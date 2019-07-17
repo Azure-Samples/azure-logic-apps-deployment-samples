@@ -1,0 +1,11 @@
+{
+    "$connections": {
+        "value": {
+            "x12": {
+                "connectionId": "{x12ConnId}",
+                "connectionName": "x12",
+                "id": "{x12ManagedApiId}"
+            }
+        }
+    }
+}

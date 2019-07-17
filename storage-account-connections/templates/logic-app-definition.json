@@ -1,0 +1,102 @@
+{
+    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+    "actions": {
+        "Create_blob": {
+            "inputs": {
+                "body": "@triggerBody()?['MessageText']",
+                "host": {
+                    "connection": {
+                        "name": "@parameters('$connections')['azureblob']['connectionId']"
+                    }
+                },
+                "method": "post",
+                "path": "/datasets/default/files",
+                "queries": {
+                    "folderPath": "/samplecontainer1",
+                    "name": "@triggerBody()?['MessageId']",
+                    "queryParametersSingleEncoded": true
+                }
+            },
+            "runAfter": {},
+            "runtimeConfiguration": {
+                "contentTransfer": {
+                    "transferMode": "Chunked"
+                }
+            },
+            "type": "ApiConnection"
+        },
+        "Create_file": {
+            "inputs": {
+                "body": "@triggerBody()?['MessageText']",
+                "host": {
+                    "connection": {
+                        "name": "@parameters('$connections')['azurefile']['connectionId']"
+                    }
+                },
+                "method": "post",
+                "path": "/datasets/default/files",
+                "queries": {
+                    "folderPath": "/sampleshare1",
+                    "name": "@triggerBody()?['MessageId']",
+                    "queryParametersSingleEncoded": true
+                }
+            },
+            "runAfter": {
+                "Insert_Entity": [
+                    "Succeeded"
+                ]
+            },
+            "runtimeConfiguration": {
+                "contentTransfer": {
+                    "transferMode": "Chunked"
+                }
+            },
+            "type": "ApiConnection"
+        },
+        "Insert_Entity": {
+            "inputs": {
+                "body": "@triggerBody()",
+                "host": {
+                    "connection": {
+                        "name": "@parameters('$connections')['azuretables']['connectionId']"
+                    }
+                },
+                "method": "post",
+                "path": "/Tables/@{encodeURIComponent('sampleTable1')}/entities"
+            },
+            "runAfter": {
+                "Create_blob": [
+                    "Succeeded"
+                ]
+            },
+            "type": "ApiConnection"
+        }
+    },
+    "contentVersion": "1.0.0.0",
+    "outputs": {},
+    "parameters": {
+        "$connections": {
+            "defaultValue": {},
+            "type": "Object"
+        }
+    },
+    "triggers": {
+        "When_there_are_messages_in_a_queue": {
+            "inputs": {
+                "host": {
+                    "connection": {
+                        "name": "@parameters('$connections')['azurequeues']['connectionId']"
+                    }
+                },
+                "method": "get",
+                "path": "/@{encodeURIComponent('samplequeue1')}/message_trigger"
+            },
+            "recurrence": {
+                "frequency": "Minute",
+                "interval": 3
+            },
+            "splitOn": "@triggerBody()?['QueueMessagesList']?['QueueMessage']",
+            "type": "ApiConnection"
+        }
+    }
+}

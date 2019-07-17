@@ -1,0 +1,118 @@
+    {
+        "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+        "contentVersion": "1.0.0.0",
+        "parameters": {
+            "groupId": {
+                "type": "string",
+                "metadata": {
+                    "description": "Name of group to create resource names using"
+                }
+            },
+            "environment": {
+                "type": "string",
+                "defaultValue": "d",
+                "metadata": {
+                    "description": "Letter identifying the environment the resources are in e.g. d for Development, t for test, etc..."
+                }
+            },
+            "locationName": {
+                "type": "string",
+                "metadata": {
+                    "description": "Value used to identify the location within the name of resources (usually a shortened version of the region name)"
+                }
+            },
+            "queues": {
+                "type": "array",
+                "defaultValue": [
+                    "queue_1",
+                    "queue_2"
+                ],
+                "metadata": {
+                    "description": "Array of queues to create"
+                }
+            },
+            "serviceBusSku": {
+                "type": "string",
+                "allowedValues": [
+                    "Standard",
+                    "Premium"
+                ],
+                "defaultValue": "Standard",
+                "metadata": {
+                    "description": "Sku for the service bus namespace"
+                }
+            },
+            "serviceBusCapacity": {
+                "type": "int",
+                "allowedValues": [
+                    1,
+                    2,
+                    4
+                ],
+                "defaultValue": 1,
+                "metadata": {
+                    "description": "The specified messaging units for the service bus namespace"
+                }
+            }
+        },
+        "variables": {
+            "location": "[resourceGroup().location]",
+            "baseName": "[concat(parameters('groupId'), parameters('environment'))]",
+            "servicesBusName": "[toLower(concat(variables('baseName'), 'sb', parameters('locationName')))]"
+        },
+        "resources": [
+            {
+                "name": "[variables('servicesBusName')]",
+                "type": "Microsoft.ServiceBus/namespaces",
+                "apiVersion": "2017-04-01",
+                "tags": {
+                    "groupdId": "[parameters('groupId')]"
+                },
+                "location": "[variables('location')]",
+                "sku": {
+                    "name": "[parameters('serviceBusSku')]",
+                    "tier": "[parameters('serviceBusSku')]",
+                    "capacity": "[parameters('serviceBusCapacity')]"
+                },
+                "properties": {},
+                "resources": []
+            },
+            {
+                "name": "[concat(variables('servicesBusName'), '/',parameters('queues')[copyindex()])]",
+                "type": "Microsoft.ServiceBus/namespaces/queues",
+                "apiVersion": "2017-04-01",
+                "tags": {
+                    "groupdId": "[parameters('groupId')]"
+                },
+                "dependsOn": [
+                    "[resourceId('Microsoft.ServiceBus/namespaces', variables('servicesBusName'))]"
+                ],
+                "copy": {
+                    "name": "queueCopy",
+                    "count": "[length(parameters('queues'))]"
+                },
+                "properties": {
+                    "requiresDuplicateDetection": true,
+                    "requiresSession": true,
+                    "enableBatchedOperations": true
+                },
+                "resources": []
+            },
+            {
+                "type": "Microsoft.ServiceBus/namespaces/AuthorizationRules",
+                "name": "[concat(variables('servicesBusName'), '/', 'RootManageSharedAccessKey')]",
+                "apiVersion": "2017-04-01",
+                "location": "[variables('location')]",
+                "dependsOn": [
+                    "[resourceId('Microsoft.ServiceBus/namespaces', variables('servicesBusName'))]"
+                ],
+                "properties": {
+                    "rights": [
+                        "Listen",
+                        "Manage",
+                        "Send"
+                    ]
+                }
+            }
+        ]
+    }

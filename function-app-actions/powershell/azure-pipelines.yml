@@ -1,0 +1,108 @@
+variables: 
+  location: westus
+  groupId: cse01
+  abbrevLocationName: westus
+  instanceCount: 1
+  identifier: sample-function-app
+  sampleDirectory: function-app-actions
+  sharedResourceGroupIdentifier: shared
+
+trigger:
+- master
+
+stages:
+- stage: BuildFunctionApp
+  variables:
+    project: '**/$(sampleDirectory)/sample-function/*.csproj'
+    buildPlatform: 'Any CPU'
+    buildConfiguration: 'Release'
+  jobs:
+  - job: BuildFunctionApp
+    pool: 
+      vmImage: 'windows-2019'
+    steps:
+    - task: DotNetCoreCLI@2
+      displayName: Build Project
+      inputs:
+        command: 'build'
+        projects: '$(project)'
+        arguments: '--configuration $(buildConfiguration)'
+    - task: ArchiveFiles@2
+      displayName: 'Archive files'
+      inputs:
+        rootFolderOrFile: '$(System.DefaultWorkingDirectory)/$(sampleDirectory)/sample-function/bin/$(buildConfiguration)/netcoreapp2.1/'
+        includeRootFolder: false
+        archiveType: zip
+        archiveFile: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
+        replaceExistingArchive: true
+    - task: PublishPipelineArtifact@1
+      inputs:
+        path: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+        ArtifactName: 'function-app'
+- stage: Development
+  jobs:
+  - job: DeployDevelopmentEnvironment
+    variables:
+      environment: d
+    pool: 
+      vmImage: 'windows-2019'
+    steps:
+    - script: |
+        echo ##vso[task.setvariable variable=resourceGroupName]$(groupId)$(environment)rgp$(location)-$(sharedResourceGroupIdentifier)
+        echo ##vso[task.setvariable variable=templateFilePath]$(Build.Repository.LocalPath)\$(sampleDirectory)\templates\shared-template.json
+        echo ##vso[task.setvariable variable=logicAppDeployScript]$(Build.Repository.LocalPath)\$(sampleDirectory)\powershell\logic-app-deploy.ps1
+        echo ##vso[task.setvariable variable=functionAppName]$(groupId)$(environment)fa$(abbrevLocationName)
+      name: setDynamicVariableNames
+    - powershell: |
+        Write-Host "templateFilePath: $(templateFilePath)"
+        Write-Host "resourceGroupName: $(resourceGroupName)"
+        Write-Host "logicAppDeployScript: $(logicAppDeployScript)"
+      name: printOutVariables
+    - task: AzureResourceGroupDeployment@2
+      name: SharedResourcesDeployment
+      inputs:
+        azureSubscription: 'Azure Samples Subscription'
+        action: 'Create Or Update Resource Group'
+        resourceGroupName: $(resourceGroupName)
+        location: $(location)
+        templateLocation: Linked artifact
+        csmFile: $(templateFilePath)
+        deploymentMode: 'Incremental'
+        deploymentName: $(Build.BuildNumber)
+        overrideParameters: -groupId $(groupId) -environment $(environment) -locationName $(abbrevLocationName)
+    - task: DownloadPipelineArtifact@2
+      displayName: Download Function App
+      inputs:
+        artifactName: function-app
+    - task: AzureFunctionApp@1
+      name: DeployFunctionApp
+      inputs:
+        azureSubscription: 'Azure Samples Subscription'
+        appType: 'functionApp'
+        appName: $(functionAppName)
+        package: '$(Pipeline.Workspace)/**/$(Build.BuildId).zip'
+        deploymentMethod: 'auto'
+    - script: |
+        echo ##vso[task.setvariable variable=connectorsTemplateFilePath]$(Build.Repository.LocalPath)\$(sampleDirectory)\templates\connectors-template.json
+        echo ##vso[task.setvariable variable=logicAppTemplateFilePath]$(Build.Repository.LocalPath)\$(sampleDirectory)\templates\logic-app-template.json
+        echo ##vso[task.setvariable variable=logicAppDefinitionPath]$(Build.Repository.LocalPath)\$(sampleDirectory)\templates\logic-app-definition.json
+        echo ##vso[task.setvariable variable=logicAppDefinitionParametersFilePath]$(Build.Repository.LocalPath)\$(sampleDirectory)\templates\logic-app-definition-parameters.json
+    - task: AzurePowerShell@4
+      name: DeployLogicAppSample
+      inputs:
+        azureSubscription: 'Azure Samples Subscription'
+        ScriptType: 'FilePath'
+        ScriptPath: '$(logicAppDeployScript)'
+        FailOnStandardError: true
+        azurePowerShellVersion: LatestVersion
+        ScriptArguments: >-
+          -groupId $(groupId) 
+          -location $(location) 
+          -abbrevLocationName $(abbrevLocationName) 
+          -environment $(environment) 
+          -instanceCount $(instanceCount) 
+          -identifier $(identifier) 
+          -connectorsTemplateFilePath $(connectorsTemplateFilePath) 
+          -logicAppTemplateFilePath $(logicAppTemplateFilePath) 
+          -logicAppDefinitionPath $(logicAppDefinitionPath) 
+          -logicAppDefinitionParametersFilePath $(logicAppDefinitionParametersFilePath)

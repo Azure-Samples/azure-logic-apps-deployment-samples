@@ -1,0 +1,68 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "groupId": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of group to create resource names using"
+      }
+    },
+    "environment": {
+      "type": "string",
+      "defaultValue": "d",
+      "metadata": {
+        "description": "Letter identifying the environment the resources are in e.g. d for Development, t for test, etc..."
+      }
+    },
+    "locationName": {
+      "type": "string",
+      "metadata": {
+        "description": "Value used to identify the location within the name of resources (usually a shortened version of the region name)"
+      }
+    },
+    "identifier": {
+      "type": "string",
+      "metadata": {
+        "description": "Value appended to the end of the logic app name to identify it's purpose/function"
+      }
+    },
+    "instance": {
+      "type": "int",
+      "defaultValue": 1,
+      "metadata": {
+        "description": "The instance count for the resources group"
+      }
+    }
+  },
+  "variables": {
+    "location": "[resourceGroup().location]",
+    "baseName": "[concat(parameters('groupId'), parameters('environment'))]",
+    "instance": "[if(equals(parameters('instance'), 1), '', concat('-', sub(parameters('instance'), 1)))]",
+    "logicAppName": "[toLower(concat(variables('baseName'), 'la', parameters('locationName'), '-', parameters('identifier'), variables('instance')))]"
+  },
+  "resources": [
+    {
+      "name": "[variables('logicAppName')]",
+      "type": "Microsoft.Logic/workflows",
+      "location": "[variables('location')]",
+      "apiVersion": "2016-06-01",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {},
+          "triggers": {},
+          "actions": {},
+          "outputs": {}
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "logicAppName": {
+      "type": "string",
+      "value": "[variables('logicAppName')]"
+    }
+  }
+}

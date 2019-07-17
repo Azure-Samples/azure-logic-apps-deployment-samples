@@ -1,0 +1,9 @@
+{
+    "$armValues": {
+        "value": {
+            "functionAppName": "{functionAppName}",
+            "functionAppResourceGroup": "{functionAppResourceGroup}",
+            "subscriptionId": "{subscriptionId}"
+        }
+    }
+}

@@ -1,0 +1,35 @@
+{
+    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+    "actions": {
+        "AwesomeFunction": {
+            "inputs": {
+                "function": {
+                    "id": "/subscriptions/{subscriptionId}/resourceGroups/{functionAppResourceGroup}/providers/Microsoft.Web/sites/{functionAppName}/functions/AwesomeFunction"
+                },
+                "method": "GET",
+                "queries": {
+                    "name": "sample"
+                }
+            },
+            "runAfter": {},
+            "type": "Function"
+        }
+    },
+    "contentVersion": "1.0.0.0",
+    "outputs": {},
+    "parameters": {
+        "$armValues": {
+            "defaultValue": {},
+            "type": "Object"
+        }
+    },
+    "triggers": {
+        "Sliding_Window": {
+            "recurrence": {
+                "frequency": "Minute",
+                "interval": 3
+            },
+            "type": "SlidingWindow"
+        }
+    }
+}

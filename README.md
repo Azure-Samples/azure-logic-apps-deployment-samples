@@ -1,57 +1,21 @@
-# Project Name
+# Microsoft Azure Logic Apps Deployment Pipelines
 
-(short, 1-3 sentenced, description of the project)
+The goal of this project is to illustrate some strategies for implementing a continuous delivery pipeline for Azure Logic Apps. 
 
-## Features
+## Supporting documentation
 
-This project framework provides the following features:
+The following documentation has been provided to help assist in understanding the different pieces of these samples.
 
-* Feature 1
-* Feature 2
-* ...
+- [Concepts](./concept-review.md): This will cover several of the defining concepts of these samples
+- [Naming Conventions](./naming-convention.md): This will cover the naming conventions applied to the resources created as part of the samples. 
+- [Sample File Definition](./file-definitions.md): This will describe purpose of the different files within the samples.
+- [Scaling](./api-connection-scale.md): This will cover the reason behind the instanceCount variable and why these samples have the ability to increase the number of copies of the logic apps that are deployed.
 
-## Getting Started
+## Sample inventory
 
-### Prerequisites
-
-(ideally very short, if any)
-
-- OS
-- Library version
-- ...
-
-### Installation
-
-(ideally very short)
-
-- npm install [package name]
-- mvn install
-- ...
-
-### Quickstart
-(Add steps to get up and running quickly)
-
-1. git clone [repository clone url]
-2. cd [respository name]
-3. ...
-
-
-## Demo
-
-A demo app is included to show how to use the project.
-
-To run the demo, follow these steps:
-
-(Add steps to start up the demo)
-
-1.
-2.
-3.
-
-## Resources
-
-(Any additional resources or related projects)
-
-- Link to supporting information
-- Link to similar sample
-- ...
+- [Service Bus Connections](./service-bus-connections/README.md)
+- [Function App Actions](./function-app-actions/README.md)
+- [Integration Account Connections](./integration-account-connections/README.md)
+- [Storage Account Connections](./storage-account-connections/README.md)
+- API Management Actions
+- Log Analytics via Diagnostic Logs Config

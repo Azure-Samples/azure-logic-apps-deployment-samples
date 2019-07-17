@@ -1,0 +1,16 @@
+{
+    "$connections": {
+        "value": {
+            "servicebus-1": {
+                "connectionId": "{serviceBusConnId1}",
+                "connectionName": "servicebus-1",
+                "id": "{serviceBusManagedApiId}"
+            },
+            "servicebus-2": {
+                "connectionId": "{serviceBusConnId2}",
+                "connectionName": "servicebus-2",
+                "id": "{serviceBusManagedApiId}"
+            }
+        }
+    }
+}
