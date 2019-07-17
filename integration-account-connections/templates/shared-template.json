@@ -5,23 +5,23 @@
             "groupId": {
                 "type": "string",
                 "metadata": {
-                    "description": "Name of group to create resource names using"
+                    "description": "The group name to use for creating resource names"
                 }
             },
             "environment": {
                 "type": "string",
                 "defaultValue": "d",
                 "metadata": {
-                    "description": "Letter identifying the environment the resources are in e.g. d for Development, t for test, etc..."
+                    "description": "The alphabetical character that identifies the deployment environment to use in the name for each created resource. For example, values include "d" for development, "t" for test, "s" for staging, and "p" for production."
                 }
             },
             "locationName": {
                 "type": "string",
                 "metadata": {
-                    "description": "Value used to identify the location within the name of resources (usually a shortened version of the region name)"
+                    "description": "The name that identifies the region or location in resource names and is usually the shortened version of that name"
                 }
             },
-            "intregrationAccountSku": {
+            "integrationAccountSku": {
                 "type": "string",
                 "allowedValues": [
                     "Free",
@@ -29,7 +29,7 @@
                 ],
                 "defaultValue": "Free",
                 "metadata": {
-                    "description": "Sku for the integration account"
+                    "description": "The SKU for the integration account"
                 }
             }
         },
@@ -49,7 +49,7 @@
                 },
                 "properties": {},
                 "sku": {
-                    "name": "[parameters('intregrationAccountSku')]"
+                    "name": "[parameters('integrationAccountSku')]"
                 },
                 "resources": []
             }

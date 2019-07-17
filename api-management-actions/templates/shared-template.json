@@ -5,62 +5,62 @@
         "groupId": {
             "type": "string",
             "metadata": {
-                "description": "Name of group to create resource names using"
+                "description": "The group name to use for creating resource names"
             }
         },
         "environment": {
             "type": "string",
             "defaultValue": "d",
             "metadata": {
-                "description": "Letter identifying the environment the resources are in e.g. d for Development, t for test, etc..."
+                "description": "The alphabetical character that identifies the deployment environment to use in the name for each created resource. For example, values include "d" for development, "t" for test, "s" for staging, and "p" for production."
             }
         },
         "locationName": {
             "type": "string",
             "metadata": {
-                "description": "Value used to identify the location within the name of resources (usually a shortened version of the region name)"
+                "description": "The name that identifies the region or location in resource names and is usually the shortened version of that name"
             }
         },
-        "appinsightsRegion": {
+        "appInsightsRegion": {
             "defaultValue": "westus2",
             "type": "string",
             "metadata": {
-                "description": "Region the applications insights resource will be deployed to"
+                "description": "The region where to deploy the Application Insights resource"
             }
         },
         "apimSku": {
             "defaultValue": "Consumption",
             "type": "string",
             "metadata": {
-                "description": "The sku used for the api management resource"
+                "description": "The SKU to use for the API Management resource"
             }
         },
         "apimCapacity": {
             "defaultValue": 0,
             "type": "int",
             "metadata": {
-                "description": "The capacity defined for the api management resource"
+                "description": "The capacity to define for the API Management resource"
             }
         },
         "apimContactEmail": {
-            "defaultValue": "jane.doe@acme.com",
+            "defaultValue": "gayle.mcpherson@fabrikam.com",
             "type": "string",
             "metadata": {
-                "description": "Email address when the API Management resource sends email notifications"
+                "description": "The email address to use when the API Management resource sends email notifications"
             }
         },
         "apimAdminEmail": {
-            "defaultValue": "john.smith@acme.com",
+            "defaultValue": "kirby.ahmad@fabrikam.com",
             "type": "string",
             "metadata": {
-                "description": "Email address used for administrative functions related to the API management resource"
+                "description": "The email address to use for administrative functions related to the API Management resource"
             }
         },
         "apimPublisherName": {
-            "defaultValue": "ACME",
+            "defaultValue": "Fabrikam",
             "type": "string",
             "metadata": {
-                "description": "Name of the publisher"
+                "description": "The name of the publisher"
             }
         }
     },
@@ -138,7 +138,7 @@
             "type": "Microsoft.Insights/components",
             "apiVersion": "2015-05-01",
             "name": "[variables('appInsightsName')]",
-            "location": "[parameters('appinsightsRegion')]",
+            "location": "[parameters('appInsightsRegion')]",
             "kind": "web",
             "properties": {
                 "Application_Type": "web"

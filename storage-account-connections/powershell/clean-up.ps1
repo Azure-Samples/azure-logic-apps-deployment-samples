@@ -1,9 +1,9 @@
 <#
  .SYNOPSIS
-    Deletes all resources groups that have a name starts with the groupId passed in
+    Deletes all resource groups where their names start with the "groupId" that's passed as input.
 
  .PARAMETER groupId
-    The value used to identify the resource group to delete
+    The value that identifies the resource group to delete
 #>
 
 param(

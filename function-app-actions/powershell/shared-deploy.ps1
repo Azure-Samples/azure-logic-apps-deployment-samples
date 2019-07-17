@@ -1,24 +1,24 @@
 <#
     .SYNOPSIS
-    Deploys the shared 
+    Deploy the shared resources.
 
     .DESCRIPTION
     Deploys an Azure Resource Manager template with the LogicApp definition seperated within the directory
 
     .PARAMETER groupId
-        The value used to construct resources within the resource group. Should identify the group of resources that are used together for the given solution
+        The value used for constructing resources in the resource group and identifies the resources that are used together in a specific solution
 
     .PARAMETER location
-        Region used for the resource group and the region for resources contained within it
+        The region or location name to use for the resource group and the resources in that group
 
     .PARAMETER environment
-        The environment letter provided will be used within every resource created within the resource group. Example values include d = development; t = test; s = staging; p = production
+        The alphabetical character that identifies the deployment environment to use in the name for each resource that's created in the resource group. For example, values include "d" for development, "t" for test, "s" for staging, and "p" for production.
 
     .PARAMETER abbrevLocationName
-        OPTIONAL: An abbreviated version of the region name. Used within the resource names and should be used to compress the names to account for the character limitations placed on some resource types. Defaults to the location")]
+        OPTIONAL: The abbreviated region name that's used in resource names due to character limitations on some resource types. Defaults to the "location" parameter value.
 
     .PARAMETER deploymentName
-        OPTIONAL: Name given to the deployment. If not provided a GUID is assigned to the deployment
+        OPTIONAL: The name used for the deployment. If not given, a GUID is assigned as the deployment name.
 
     .PARAMETER identifier
         OPTIONAL: Value appended to the end of the resource group and the logic app within the resource group
@@ -67,7 +67,7 @@ param(
 Function RegisterRP {
     <#
         .SYNOPSIS
-            Registers the azure resource provider
+            Register the Azure resource provider.
     #>
     Param(
         [Parameter(Mandatory = $True, HelpMessage = "The name of the resource provider to register")]
@@ -81,11 +81,11 @@ Function RegisterRP {
 Function Set-RelativeFilePaths {
     <#
         .SYNOPSIS
-            Fixes relative paths that cannot be evaluated as is
+            Fix relative paths that can't be evaluated as given.
         .DESCRIPTION
-            Validates that the file paths can be evaluated as passed in. 
-            In the event the paths are relitive and can't be found, 
-            will attempt to fix by prepending the scripts execution root path to the path given
+            Validate whether the file paths can be evaluated as they're passed as input.
+            If the paths are relative and can't be found, try to fix by prepending the 
+            root path for script execution to the given path.
     #>
     Param()
     $parametersFilePath = Set-RelativeFilePath -filePath $parametersFilePath
@@ -95,10 +95,10 @@ Function Set-RelativeFilePaths {
 Function Set-RelativeFilePath {
     <#
         .SYNOPSIS
-            Validate an individual file path and prepends script execution root path when the path fails
+            Validate a single file path and prepend the root path for script execution when the path fails.
     #>
     Param(
-        [Parameter(Mandatory = $True, HelpMessage = "The path of the file to test to see if it exists.")]
+        [Parameter(Mandatory = $True, HelpMessage = "The path of the file to test whether the file exists")]
         [string]$filePath
     )
 
@@ -113,16 +113,16 @@ Function Set-RelativeFilePath {
 Function Set-ResourceGroup {
     <#
         .SYNOPSIS
-            Checks if the resource group exists, if not will create the resource group
+            Check whether the resource group exists. If not, create the resource group.
     #>
     Param(
-        [Parameter(Mandatory = $True, HelpMessage = "The name of the resource group to create if it doesn't exist")]
+        [Parameter(Mandatory = $True, HelpMessage = "The name for the resource group to create, if not already existing")]
         [string]$resourceGroupName
     )
     
-    Write-Host "Working with Resource group name '$resourceGroupName'"
+    Write-Host "Working with resource group name: '$resourceGroupName'"
 
-    Write-Host "Checking if resource group exists"
+    Write-Host "Checking whether the resource group exists"
     $resourceGroup = Get-AzResourceGroup -Name $resourceGroupName -ErrorAction SilentlyContinue
     if (!$resourceGroup) {
         Write-Host "Resource group '$resourceGroupName' does not exist. Creating new resource group";
@@ -135,21 +135,21 @@ Function Set-ResourceGroup {
     }
 }
 
-Function New-ArmTemplateDeployment {
+Function New-ResourceManagerTemplateDeployment {
     <#
         .SYNOPSIS
-            Create a new ARM template deployment 
+            Create an Azure Resource Manager template deployment.
         .OUTPUTS
-            The results of the ARM template deployment
+            The results from the Azure Resource Manager template deployment
     #>
     Param(
-        [Parameter(Mandatory = $True, HelpMessage = "The path to the parameter file to use for the deployment")]
+        [Parameter(Mandatory = $True, HelpMessage = "The path for the parameter file to use for deployment")]
         [string]$parametersFilePath,
-        [Parameter(Mandatory = $True, HelpMessage = "The name of the resource group to deploy to")]
+        [Parameter(Mandatory = $True, HelpMessage = "The name for the resource group to use for deployment")]
         [string]$resourceGroupName,
         [Parameter(Mandatory = $True, HelpMessage = "The path to the template file to use for the deployment")]
         [string]$templateFilePath,
-        [Parameter(Mandatory = $True, HelpMessage = "Values to append to the parameters prior to deployment")]
+        [Parameter(Mandatory = $True, HelpMessage = "The values to append to the parameters before deployment")]
         [hashtable]$armParameters
     )
     if (Test-Path $parametersFilePath) {
@@ -173,14 +173,14 @@ Function New-ArmTemplateDeployment {
 Function New-Parameter {
     <#
         .SYNOPSIS
-            Appends a parameter to the hashtable of parameters passed in
+            Append a parameter to the hash table for parameters that are passed as input.
     #>
     Param (
-        [Parameter(Mandatory = $True, HelpMessage = "Hashtable to add the parameter to")]
+        [Parameter(Mandatory = $True, HelpMessage = "The hash table where to add the parameter")]
         [hashtable]$parameters,
-        [Parameter(Mandatory = $True, HelpMessage = "Name of the parameter to add")]
+        [Parameter(Mandatory = $True, HelpMessage = "The name for the parameter to add")]
         [string]$name,
-        [Parameter(Mandatory = $True, HelpMessage = "Value of the parameter to add")]
+        [Parameter(Mandatory = $True, HelpMessage = "The value for the parameter to add")]
         [string]$value
     )
     $parameters | Add-Member -MemberType NoteProperty -Name $name -Value @{value = $value }
@@ -213,7 +213,7 @@ $armParameters = @{
     locationName = $abbrevLocationName
 };
 
-$result = New-ArmTemplateDeployment -parametersFilePath $parametersFilePath `
+$result = New-ResourceManagerTemplateDeployment -parametersFilePath $parametersFilePath `
     -resourceGroupName $resourceGroupName `
     -templateFilePath $templateFilePath `
     -armParameters $armParameters;

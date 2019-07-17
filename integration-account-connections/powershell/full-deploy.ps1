@@ -1,30 +1,30 @@
 <#
  .SYNOPSIS
-    Deploys a logic app template to Azure
+    Deploys a template for a logic app to Azure.
 
  .DESCRIPTION
     Deploys an Azure Resource Manager template with the LogicApp definition seperated within the directory
 
     .PARAMETER groupId
-        The value used to construct resources within the resource group. Should identify the group of resources that are used together for the given solution
+        The value used for constructing resources in the resource group and identifies the resources that are used together in a specific solution
 
     .PARAMETER location
-        Region used for the resource group and the region for resources contained within it
+        The region or location name to use for the resource group and the resources in that group
 
     .PARAMETER environment
-        The environment letter provided will be used within every resource created within the resource group. Example values include d = development; t = test; s = staging; p = production
+        The alphabetical character that identifies the deployment environment to use in the name for each resource that's created in the resource group. For example, values include "d" for development, "t" for test, "s" for staging, and "p" for production.
 
     .PARAMETER abbrevLocationName
-        An abbreviated version of the region name. Used within the resource names and should be used to compress the names to account for the character limitations placed on some resource types. Defaults to the location")]
+        The abbreviated region name that's used in resource names due to character limitations on some resource types. Defaults to the "location" parameter value.
 
     .PARAMETER deploymentName
-        Name given to the deployment. If not provided a GUID is assigned to the deployment
+        The name used for the deployment. If not given, a GUID is assigned as the deployment name.
 
     .PARAMETER instanceCount
-        The number of instances of the resource group to create
+        The number of resource group instances to create
 
     .PARAMETER overrideExistingLogicApp
-        Tells the script to execute the ARM template deployment for the logic app even when the logic app already exists
+        If true, the script runs the Azure Resource Manager template deployment for the logic app, even when the logic app already exists.
 #>
 
 param(

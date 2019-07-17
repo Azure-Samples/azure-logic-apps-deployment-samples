@@ -5,20 +5,20 @@
         "groupId": {
             "type": "string",
             "metadata": {
-                "description": "Name of group to create resource names using"
+                "description": "The group name to use for creating resource names"
             }
         },
         "environment": {
             "type": "string",
             "defaultValue": "d",
             "metadata": {
-                "description": "Letter identifying the environment the resources are in e.g. d for Development, t for test, etc..."
+                "description": "The alphabetical character that identifies the deployment environment to use in the name for each created resource. For example, values include "d" for development, "t" for test, "s" for staging, and "p" for production."
             }
         },
         "locationName": {
             "type": "string",
             "metadata": {
-                "description": "Value used to identify the location within the name of resources (usually a shortened version of the region name)"
+                "description": "The name that identifies the region or location in resource names and is usually the shortened version of that name"
             }
         },
         "containers": {
@@ -28,7 +28,7 @@
                 "samplecontainer2"
             ],
             "metadata": {
-                "description": "Array of containers to create"
+                "description": "The array of containers to create"
             }
         }
     },

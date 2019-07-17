@@ -1,60 +1,60 @@
 <#
     .SYNOPSIS
-        Deploys a logic app to Azure, with connections, defition and arm template segregation
+        Deploys a logic app to Azure, including the connections, definition, and separate Azure Resource Manager template.
 
     .PARAMETER groupId
-        The value used to construct resources within the resource group. Should identify the group of resources that are used together for the given solution
+        The value used for constructing resources in the resource group and identifies the resources that are used together in a specific solution
 
     .PARAMETER location
-        Region used for the resource group and the region for resources contained within it
+        The region or location name to use for the resource group and the resources in that group
 
     .PARAMETER environment
-        The environment letter provided will be used within every resource created within the resource group. Example values include d = development; t = test; s = staging; p = production
+        The alphabetical character that identifies the deployment environment to use in the name for each resource that's created in the resource group. For example, values include "d" for development, "t" for test, "s" for staging, and "p" for production.
 
     .PARAMETER identifier
-        Value appended to the end of the resource group and the logic app within the resource group
+        The value that's appended to the names for the resource group and logic app in that resource group. This value identifies the purpose or function for that group and logic app.
 
     .PARAMETER abbrevLocationName
-        An abbreviated version of the region name. Used within the resource names and should be used to compress the names to account for the character limitations placed on some resource types. Defaults to the location")]
+        The abbreviated region name that's used in resource names due to character limitations on some resource types. Defaults to the "location" parameter value.
 
     .PARAMETER deploymentName
-        Name given to the deployment. If not provided a GUID is assigned to the deployment
+        The name used for the deployment. If not given, a GUID is assigned as the deployment name.
 
     .PARAMETER connectorsParametersFilePath
-        Path to the connectors parameter file. Defaults to the file contained within the local directory
+        The path to the parameters file for the connectors' Azure Resource Manager template. Defaults to the file in the local directory.
     
     .PARAMETER connectorsTemplateFilePath
-        Path to the connectors template file. Defaults to the file contained within the local directory
+        The path to the connectors' Azure Resource Manager template. Defaults to the file in the local directory.
 
-    .PARAMETER logicAppArmParametersFilePath
-        Path to the logic app arm parameters parameter file. Defaults to the file contained within the local directory
+    .PARAMETER logicAppParametersFilePath
+        The path to the parameters file for the logic app's Azure Resource Manager template. Defaults to the file in the local directory.
 
     .PARAMETER logicAppTemplateFilePath
-        Path to the logic app arm template file. Defaults to the file contained within the local directory
+        The path to the logic app's Azure Resource Manager template. Defaults to the file in the local directory.
 
     .PARAMETER logicAppDefinitionParametersFilePath
-        Path to the logic app definition parameters file file. Defaults to the file contained within the local directory
+        The path to the parameters file for the logic app's definition file. Defaults to the file in the local directory.
 
     .PARAMETER logicAppDefinitionPath
-        Path to the logic app definition file. Defaults to the file contained within the local directory
+        Path to the logic app's definition file. Defaults to the file in the local directory.
 
     .PARAMETER instanceCount
-        The number of instances of the resource group to create
+        The number of resource group instances to create
 
     .PARAMETER overrideExisting
-        Tells the script to execute the ARM template deployment for the logic app even when the logic app already exists
+        If true, the script runs the Azure Resource Manager template deployment for the logic app, even when the logic app already exists.
 
     .EXAMPLE
-        Will deploy the logic apps to the westus region using default values.
+        Deploys a logic app to the "westus" region by using the default values.
 
         ./logic-app-deploy.ps1 -groupId cse01 -location westus -environment d -identifier sample-sb-conn
-
     .EXAMPLE
-        Will deploy the 6 instances of the logic apps to the westus region.
+        Deploys six instances for a logic app to the "westus" region.
+        
         ./logic-app-deploy.ps1 -groupId cse02 -location westus -environment d -identifier sample-sb-conn -instanceCount 6
-
     .EXAMPLE
-        Will deploy the 6 instances of the logic apps to the northcentralus region with the shortened region name of ncus.
+        Deploys six instances for a logic app to the "northcentralus" region by using the "ncus" abbreviation.
+        
         ./logic-app-deploy.ps1 -groupId cse03 -location northcentralus -environment d -identifier sample-sb-conn -instanceCount 6 -abbrevLocationName ncus
 #>
 
@@ -93,7 +93,7 @@ param(
 
     [Parameter(Mandatory = $False)]
     [string]
-    $logicAppArmParametersFilePath = "../templates/logic-app-arm-parameters.json",
+    $logicAppParametersFilePath = "../templates/logic-app-arm-parameters.json",
 
     [Parameter(Mandatory = $False)]
     [string]
@@ -119,16 +119,16 @@ param(
 Function Set-RelativeFilePaths {
     <#
         .SYNOPSIS
-            Fixes relative paths that cannot be evaluated as is
+            Fix relative paths that can't be evaluated as given.
         .DESCRIPTION
-            Validates that the file paths can be evaluated as passed in. 
-            In the event the paths are relitive and can't be found, 
-            will attempt to fix by prepending the scripts execution root path to the path given
+            Validate whether the file paths can be evaluated as they're passed as input.
+            If the paths are relative and can't be found, try to fix by prepending the 
+            root path for script execution to the given path.
     #>
     Param()
     $connectorsParametersFilePath = Set-RelativeFilePath -filePath $connectorsParametersFilePath
     $connectorsTemplateFilePath = Set-RelativeFilePath -filePath $connectorsTemplateFilePath
-    $logicAppArmParametersFilePath = Set-RelativeFilePath -filePath $logicAppArmParametersFilePath
+    $logicAppParametersFilePath = Set-RelativeFilePath -filePath $logicAppParametersFilePath
     $logicAppDefinitionParametersFilePath = Set-RelativeFilePath -filePath $logicAppDefinitionParametersFilePath
     $logicAppTemplateFilePath = Set-RelativeFilePath -filePath $logicAppTemplateFilePath
     $logicAppDefinitionPath = Set-RelativeFilePath -filePath $logicAppDefinitionPath
@@ -137,10 +137,10 @@ Function Set-RelativeFilePaths {
 Function Set-RelativeFilePath {
     <#
         .SYNOPSIS
-            Validate an individual file path and prepends script execution root path when the path fails
+            Validate a single file path and prepend the root path for script execution when the path fails.
     #>
     Param(
-        [Parameter(Mandatory = $True, HelpMessage = "The path of the file to test to see if it exists.")]
+        [Parameter(Mandatory = $True, HelpMessage = "The path of the file to test whether the file exists")]
         [string]$filePath
     )
 
@@ -155,7 +155,7 @@ Function Set-RelativeFilePath {
 Function RegisterRP {
     <#
         .SYNOPSIS
-            Registers the azure resource provider
+            Register the Azure resource provider.
     #>
     Param(
         [Parameter(Mandatory = $True, HelpMessage = "The name of the resource provider to register")]
@@ -168,7 +168,7 @@ Function RegisterRP {
 Function Set-LogicAppDeployment {
     <#
         .SYNOPSIS
-            Creates/Updates the instance of the logic logic app deployment
+            Create or update the instance for the logic app deployment.
     #>
     Param(
         [Parameter(Mandatory = $True, HelpMessage = "The instance number to deploy")]
@@ -187,8 +187,8 @@ Function Set-LogicAppDeployment {
         instance     = $instance
     };
     
-    Write-Host "Deploying connectors arm template"
-    $connectorsOutput = New-ArmTemplateDeployment -parametersFilePath $connectorsParametersFilePath `
+    Write-Host "Deploying Azure Resource Manager template for connectors"
+    $connectorsOutput = New-ResourceManagerTemplateDeployment -parametersFilePath $connectorsParametersFilePath `
         -templateFilePath $connectorsTemplateFilePath `
         -resourceGroupName $resourceGroupName `
         -armParameters $armParameters;
@@ -205,18 +205,19 @@ Function Set-LogicAppDeployment {
     Set-LogicAppDefinition -definitionParameters $definitionParameters -definition $definition -logicAppResource $logicAppResource
 }
 
-Function Get-ResourceGroupName{
+Function Get-ResourceGroupName {
     <#
         .SYNOPSIS
-            Returns the resource group name based on the instance number passed in
+            Return the resource group name for the instance number that's passed as input.
     #>
     Param(
         [Parameter(Mandatory = $True, HelpMessage = "The instance number to deploy")]
         [int]$instance
     )
 
-    # Let's make the resource group names zero based indexes. 
-    # Doing so makes it so a single instance deployment doesn't have an extra -1 appended and add confusion
+    # Let's use zero-based indexes for resource group names. 
+    # That way, a single instance deployment isn't appended by an extra "-1", which adds confusion.
+
     if($instance -eq 1){
         return "{0}{1}rgp{2}-{3}" -f $groupId, $environment, $location, $identifier
     } else {
@@ -227,16 +228,16 @@ Function Get-ResourceGroupName{
 Function Set-ResourceGroup {
     <#
         .SYNOPSIS
-            Checks if the resource group exists, if not will create the resource group
+            Check whether the resource group exists. If not, create the resource group.
     #>
     Param(
-        [Parameter(Mandatory = $True, HelpMessage = "The name of the resource group to create if it doesn't exist")]
+        [Parameter(Mandatory = $True, HelpMessage = "The name for the resource group to create, if not already existing")]
         [string]$resourceGroupName
     )
     
-    Write-Host "Working with Resource group name '$resourceGroupName'"
+    Write-Host "Working with resource group name: '$resourceGroupName'"
 
-    Write-Host "Checking if resource group exists"
+    Write-Host "Checking whether the resource group exists"
     $resourceGroup = Get-AzResourceGroup -Name $resourceGroupName -ErrorAction SilentlyContinue
     if (!$resourceGroup) {
         Write-Host "Resource group '$resourceGroupName' does not exist. Creating new resource group";
@@ -249,21 +250,21 @@ Function Set-ResourceGroup {
     }
 }
 
-Function New-ArmTemplateDeployment {
+Function New-ResourceManagerTemplateDeployment {
     <#
         .SYNOPSIS
-            Create a new ARM template deployment 
+            Create an Azure Resource Manager template deployment.
         .OUTPUTS
-            The results of the ARM template deployment
+            The results from the Azure Resource Manager template deployment
     #>
     Param(
-        [Parameter(Mandatory = $True, HelpMessage = "The path to the parameter file to use for the deployment")]
+        [Parameter(Mandatory = $True, HelpMessage = "The path for the parameter file to use for deployment")]
         [string]$parametersFilePath,
-        [Parameter(Mandatory = $True, HelpMessage = "The name of the resource group to deploy to")]
+        [Parameter(Mandatory = $True, HelpMessage = "The name for the resource group to use for deployment")]
         [string]$resourceGroupName,
         [Parameter(Mandatory = $True, HelpMessage = "The path to the template file to use for the deployment")]
         [string]$templateFilePath,
-        [Parameter(Mandatory = $True, HelpMessage = "Values to append to the parameters prior to deployment")]
+        [Parameter(Mandatory = $True, HelpMessage = "The values to append to the parameters before deployment")]
         [hashtable]$armParameters
     )
     if (Test-Path $parametersFilePath) {
@@ -287,14 +288,14 @@ Function New-ArmTemplateDeployment {
 Function New-Parameter {
     <#
         .SYNOPSIS
-            Appends a parameter to the hashtable of parameters passed in
+            Append a parameter to the hash table for parameters that are passed as input.
     #>
     Param (
-        [Parameter(Mandatory = $True, HelpMessage = "Hashtable to add the parameter to")]
+        [Parameter(Mandatory = $True, HelpMessage = "The hash table where to add the parameter")]
         [hashtable]$parameters,
-        [Parameter(Mandatory = $True, HelpMessage = "Name of the parameter to add")]
+        [Parameter(Mandatory = $True, HelpMessage = "The name for the parameter to add")]
         [string]$name,
-        [Parameter(Mandatory = $True, HelpMessage = "Value of the parameter to add")]
+        [Parameter(Mandatory = $True, HelpMessage = "The value for the parameter to add")]
         [string]$value
     )
     $parameters | Add-Member -MemberType NoteProperty -Name $name -Value @{value = $value }
@@ -303,43 +304,41 @@ Function New-Parameter {
 Function Set-LogicAppResource {
     <#
         .SYNOPSIS
-            Creates/Updates the logic app ARM resource
+            Create or update the logic app resource in Azure.
         .DESCRIPTION
-            Checks if the logic app resource exists. 
-            If it does not or the overrideExisting parameter is true, 
-            will create a new ARM template deployment for the logic app.
+            Check whether the logic app resource exists. 
+            If not or if the "overrideExisting" parameter is true, create an Azure Resource Manager 
+            template deployment for the logic app.
         .OUTPUTS
-            The logic app resource as it exists in Azure at the end of the execution
+            The current logic app resource in Azure when execution ends
     #>
     Param(
-        [Parameter(Mandatory = $True, HelpMessage = "Name of the resource group to deploy the Logic App resource to")]
+        [Parameter(Mandatory = $True, HelpMessage = "The name of the resource group for where to deploy the logic app resource")]
         [string]$resourceGroupName,
-        [Parameter(Mandatory = $True, HelpMessage = "Name of the logic app resource to create")]
+        [Parameter(Mandatory = $True, HelpMessage = "The name for the logic app resource to create")]
         [string]$logicAppName,
-        [Parameter(Mandatory = $True, HelpMessage = "Script parameters to append to the deployment")]
+        [Parameter(Mandatory = $True, HelpMessage = "The script parameters to append to the deployment")]
         [hashtable]$armParameters
     )
 
-    # If the overrideExisting is set to true, we always want to create a new deployment, 
-    # whether the Logic app exists of not
+    # If the "overrideExisting" parameter is set to true, always create a new deployment, whether or not the logic app exists.
     if($overrideExisting -eq $True){
-        Write-Host "Deploying Logic App ARM Template"
-        $outputs = New-ArmTemplateDeployment -parametersFilePath $logicAppArmParametersFilePath `
+        Write-Host "Deploying Azure Resource Manager template for logic app"
+        $outputs = New-ResourceManagerTemplateDeployment -parametersFilePath $logicAppParametersFilePath `
             -templateFilePath $logicAppTemplateFilePath `
             -resourceGroupName $resourceGroupName `
             -armParameters $armParameters;
     }
 
-    Write-Host "Checking if logic app exists '$logicAppName'"
+    Write-Host "Checking whether the logic app exists: '$logicAppName'"
     $logicAppResource = Get-LogicAppResource `
         -resourceGroupName $resourceGroupName `
         -logicAppName $logicAppName;    
 
-    # If the logic app has never been deployed & the overrideExisting was false
-    # We still need to create the resource
+    # Even if the "overrideExisting" is false, if the logic app doesn't exist we need to create the resource.
     if ($null -eq $logicAppResource) {
-        Write-Host "Deploying Logic App ARM Template"
-        $outputs = New-ArmTemplateDeployment -parametersFilePath $logicAppArmParametersFilePath `
+        Write-Host "Deploying Azure Resource Manager template for logic app"
+        $outputs = New-ResourceManagerTemplateDeployment -parametersFilePath $logicAppParametersFilePath `
             -templateFilePath $logicAppTemplateFilePath `
             -resourceGroupName $resourceGroupName `
             -armParameters $armParameters;
@@ -355,14 +354,14 @@ Function Set-LogicAppResource {
 Function Get-LogicAppResource {
     <#
         .SYNOPSIS
-            Gets the logic app resource as it exists in Azure
+            Get the current logic app resource in Azure.
         .OUTPUTS
-            The logic app resource as it exists in Azure at the end of the execution
+            The current logic app resource in Azure when execution ends
     #>
     Param(
-        [Parameter(Mandatory = $True, HelpMessage = "Name of the resource group to look for the logic app in")]
+        [Parameter(Mandatory = $True, HelpMessage = "The name for the resource group to search for the logic app")]
         [string]$resourceGroupName,
-        [Parameter(Mandatory = $True, HelpMessage = "Name of the logic app to get")]
+        [Parameter(Mandatory = $True, HelpMessage = "The name for the logic app to get")]
         [string]$logicAppName
     )
 
@@ -376,14 +375,14 @@ Function Get-LogicAppResource {
 Function Set-DynamicParameters {
     <#
         .SYNOPSIS
-            Reads in the json from file path provided, replaces tokens and return the result as an object
+            Read the JSON file from the specified file path, replace tokens, and return the result as an object.
         .OUTPUTS
-            The result of the updates as an object
+            The result from the updates as an object
     #>
     Param(
-        [Parameter(Mandatory = $True, HelpMessage = "Path of the file that will be read from and have the tokens replaced in")]
+        [Parameter(Mandatory = $True, HelpMessage = "The path for the file to read and where to replace tokens")]
         [string]$sourceFilePath,
-        [Parameter(Mandatory = $True, HelpMessage = "Hashtable of tparameters to iterate through and replace the token with")]
+        [Parameter(Mandatory = $True, HelpMessage = "The hash table with the parameters to iterate through and use for replacing tokens")]
         [hashtable]$sourceParameters
     )
     $result = (Get-Content $sourceFilePath -Encoding UTF8 -Raw) 
@@ -396,17 +395,18 @@ Function Set-DynamicParameters {
 Function Set-TokenValue {
     <#
         .SYNOPSIS
-            Replaces Token values found in the string passed in with the values of the parameters passed in
+            Replace the token values in the string that is passed as input with the parameter values that are also passed as input.
         .DESCRIPTION
-            Will iterate through each of the parameters passed in and will replace 
-            all instances of the "{parameter.key}" with the parameter.value found in the string passed in
+            Iterate through each parameter that's passed as input and replace 
+            all instances for the "parameter.key" value with the "parameter.value" 
+            value found in the string that's passed as input.
         .OUTPUTS
-            The result of the updates
+            The result from the updates
     #>
     Param(
-        [Parameter(Mandatory = $True, HelpMessage = "Value to search for tokens to replace")]
+        [Parameter(Mandatory = $True, HelpMessage = "The value to search for the tokens to replace")]
         [string] $InputObject,
-        [Parameter(Mandatory = $True, HelpMessage = "Hashtable of parameters to replace the tokens with")]
+        [Parameter(Mandatory = $True, HelpMessage = "The hash table with the parameters to iterate through and use for replacing tokens")]
         [hashtable] $parameters
     )
 
@@ -419,17 +419,17 @@ Function Set-TokenValue {
 Function Set-LogicAppDefinition {
     <#
         .SYNOPSIS
-            Updates the defition of the logic app in Azure
+            Update the logic app definition in Azure.
     #>
     Param(
-        [Parameter(Mandatory = $True, HelpMessage = "Parameters to pass into the update")]
+        [Parameter(Mandatory = $True, HelpMessage = "The parameters to pass into the update for the logic app definition")]
         [object]$definitionParameters,
-        [Parameter(Mandatory = $True, HelpMessage = "logic app definition to update to")]
+        [Parameter(Mandatory = $True, HelpMessage = "The logic app definition to update")]
         [object]$definition,
-        [Parameter(Mandatory = $True, HelpMessage = "logic app to update")]
+        [Parameter(Mandatory = $True, HelpMessage = "The logic app resource to update")]
         [object]$logicAppResource
     )
-    Write-Host "Updating Logic App Definition"
+    Write-Host "Updating the logic app definition"
     $logicAppResource.Properties.parameters = $definitionParameters;
     $logicAppResource.Properties.definition = $definition;
     $logicAppResource | Set-AzResource -Force;
