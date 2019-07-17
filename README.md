@@ -1,21 +1,23 @@
-# Microsoft Azure Logic Apps Deployment Pipelines
+# Samples introduction
 
-The goal of this project is to illustrate some strategies for implementing a continuous delivery pipeline for Azure Logic Apps. 
+These samples show some strategies that you can use to implement a continuous integration (CI) and continuous delivery (CD) pipeline for Azure Logic Apps.
 
-## Supporting documentation
+## Supporting documents
 
-The following documentation has been provided to help assist in understanding the different pieces of these samples.
+To learn more about the different parts in these samples, review these topics:
 
-- [Concepts](./concept-review.md): This will cover several of the defining concepts of these samples
-- [Naming Conventions](./naming-convention.md): This will cover the naming conventions applied to the resources created as part of the samples. 
-- [Sample File Definition](./file-definitions.md): This will describe purpose of the different files within the samples.
-- [Scaling](./api-connection-scale.md): This will cover the reason behind the instanceCount variable and why these samples have the ability to increase the number of copies of the logic apps that are deployed.
+1. [Concepts](./concepts-review.md) introduces the main concepts that underlie these samples.
 
-## Sample inventory
+1. [Naming conventions](./naming-convention.md) describes the naming convention to use when creating the resources in these samples.
 
-- [Service Bus Connections](./service-bus-connections/README.md)
-- [Function App Actions](./function-app-actions/README.md)
-- [Integration Account Connections](./integration-account-connections/README.md)
-- [Storage Account Connections](./storage-account-connections/README.md)
-- API Management Actions
-- Log Analytics via Diagnostic Logs Config
+1. [Samples file structure and definitions](./file-definitions.md) explains the purpose for each file in these samples.
+
+1. [Scaling](./api-connection-scale.md) expands on the reasons why these samples provide the capability to scale by increasing the number of copies for the logic apps deployed and organizing resources into separate resource groups.
+
+## Samples inventory
+
+* [API Management actions](./api-management-actions/)
+* [Azure function app actions](./function-app-actions/readme.md)
+* [Azure Service Bus connections](./service-bus-connections/readme.md)
+* [Azure storage account connections](./storage-account-connections/readme.md)
+* [Integration account connections](./integration-account-connections/readme.md)

@@ -112,7 +112,7 @@ This sample uses the [Multi-stage YAML pipelines](https://docs.microsoft.com/en-
 
 The following documentation has been provided to help assist in understanding the different pieces of this sample.
 
-- [Concepts](../concept-review.md): This will cover several of the defining concepts of this sample
+- [Concepts](../concepts-review.md): This will cover several of the defining concepts of this sample
 - [Naming Conventions](../naming-convention.md): This will cover the naming conventions applied to the resources created as part of the sample. 
 - [Sample File Definition](../file-definitions.md): This will describe the purpose of the different files within the sample.
 - [Scaling](../api-connection-scale.md): This will cover the reason behind the instanceCount variable and why this sample has the ability to increase the number of copies of the logic apps that are deployed.

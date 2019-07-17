@@ -1,59 +1,58 @@
-# Naming conventions for Azure Resources
+# Naming conventions for Azure resources
 
-It is critical to have a naming convention in place for your resources. A naming convention gives you the predictable names of resources from one environment to another. This allows for a dramatic reduction in the volume of parameter file management required to achieve the level of resource duplication required to achieve many enterprise level solutions. The naming convention that is in place for the resources created for these samples is comprised of several parts as defined below.
+This topic describes the naming convention that these samples use when creating the resources in the Azure Logic Apps samples for continuous integration (CI) and continuous deployment (CD) pipelines. This convention follows this format:
 
-## Group Id
+`<Group ID><Environment><Resource type><Region>-<Optional info>`
 
-Represents an identifier for the functional grouping of resources. This is a higher level of grouping as we will have multiple resource groups defined for a given business solution.
+Based on each identifier that's described in this topic, here are some examples:
+
+| Group ID | Environment | Resource type | Region | Optional info | Resource name |
+|----------|-------------|---------------|--------|---------------|---------------|
+| cse01 | Development | Storage account V2 | West US | Ingest | cse01dsa2westusingest |
+| cse01 | Test | Logic app | Central US | Sample Service Bus connection | cse01tlacentralus-sample-sb-conn |
+| cse01 | Development | Resource group | Central US | Shared resources | cse01drgpentralus-shared |
+|||||||
+
+## Group ID
+
+This label describes the higher-level functionality for a resource group because you can define multiple resource groups for a specific business solution.
 
 ## Environment
 
-A letter to delineate the environment the resource was for e.g.
+This character represents the environment where the resource is used, for example:
 
-| Environment | Letter |
-| ----------- | ------ |
+| Environment | Character |
+|-------------|-----------|
 | Development | d |
 | Test | t |
 | Integration | i |
 | Production | p |
- 
-## Resource Type
+|||
 
-The resource type is an abbrev for the type of resource being created. e.g.
+## Resource type
 
-| Resource type | abbrev |
-| ------------- | ------ |
-| Storage Account | sa |
-| Storage Account v2 | sa2 |
-| Function Application | fa |
-| logic app | la |
-| Integration Account | iact |
+These characters are an acronym for the resource type, for example:
+
+| Resource type | Acronym |
+|---------------|---------|
+| Storage account | sa |
+| Storage account V2 | sa2 |
+| Function app | fa |
+| Logic app | la |
+| Integration account | iact |
 | Service Bus | sb |
-| Network Security Group | nsg |
-| Resource Group | rgp |
+| Network security group | nsg |
+| Resource group | rgp |
 | Event hub | eh |
-| Event Grid Subscription | egs |
-| Log Analytics Workspace | law | 
-| Log analytics solution | las |
+| Event Grid subscription | egs |
+| Log Analytics workspace | law |
+| Log Analytics solution | las |
+|||
 
-## Region 
+## Region
 
-The region the resource is deployed as evaluated by viewing the resources .location property. E.g. West US = westus Central US = centralus. This can be replaced with an abbreviated location named defined. This is especially helpful for regions that have really long names like northcentralus.
+The region where to deploy the resource as defined by the resource definition's `.location` property. For regions with long names, such as North Central US, you can use the designated abbreviation, for example, "West US" is `westus` and "Central US" is `centralus`.
 
-## Additional identifying info
- 
-Since you might have more than a single storage account or function app, logic app within a resource group an abbrev might be required to help distinguish it’s purpose. If the resource allows for it, adding a hyphen or underscore may be appropriate for this additional information. 
+## Optional information or identification
 
-## Naming convention applied
-
-The format for applying this naming convention would look like so:
-
-{GroupID}{Environment}{Resource Type}{Region}-{Optional Purpose}
-
-Some examples:
-
-| Group Id | Environment | Resource Type | Region | Optional Info | Resource Name |
-| --- | --- | --- | --- | --- | --- |
-| cse01 | Development | Storage Account V2 | West US | ingest | cse01dsa2westusingest |
-| cse01 | Test | Logic App | Central US | sample-sb-conn | cse01tlacentralus-sample-sb-conn |
-| cse01 | Development | Resource Group | Central US | Shared Resources | cse01drgpentralus-shared |
+If a solution uses more than one resource that has the same type, such as multiple storage accounts or function apps, those resources might need more information to identify its purpose. If the resource name permits, add a hyphen and a suitable label for this information.
