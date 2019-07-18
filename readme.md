@@ -17,7 +17,7 @@ To learn more about the different parts in these samples, review these topics:
 ## Samples inventory
 
 * [API Management actions](./api-management-actions/)
-* [Azure function app actions](./function-app-actions/readme.md)
-* [Azure Service Bus connections](./service-bus-connections/readme.md)
-* [Azure storage account connections](./storage-account-connections/readme.md)
-* [Integration account connections](./integration-account-connections/readme.md)
+* [Azure function app actions](./function-app-actions/)
+* [Azure Service Bus connections](./service-bus-connections/)
+* [Azure storage account connections](./storage-account-connections/)
+* [Integration account connections](./integration-account-connections/)
