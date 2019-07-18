@@ -9,66 +9,74 @@ products:
   - azure-resource-manager
 ---
 
-# Function App action within a Microsoft Azure Logic App
+# Set up an Azure function app action for Azure Logic Apps
 
-This sample illustrates configuring a Function App action within a Logic app deployment. Why is this tricky?
+This sample shows how to set up a function app action within a logic app deployment. However, this task can pose a challenge because a function app action uses the function app's resource ID, which isn't available until deployment. To learn more about the template and definition files in this sample and how they work, review [Samples file structure and definitions](../file-definitions.md).
 
-A function app action wants the resource ID of the function app. A resource ID has the structure of...
+## Prerequisites
 
-```
-/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Web/sites/{functionAppName}/functions/{nameOfFunction}
-```
+* Install [Azure PowerShell 2.4.0](https://docs.microsoft.com/powershell/azure/install-az-ps?view=azps-2.4.0) on your platform.
+* Install [Azure Functions Core Tools](https://docs.microsoft.com/azure/azure-functions/functions-run-local#v2) on your platform.
 
-You can use an Azure Resource Manager function to get the resource ID of the function app like [this](https://docs.microsoft.com/en-us/azure/logic-apps/logic-apps-create-deploy-template#reference-dependent-resources) documentation suggests. However, this technique requires the definition to be a part of the template. It's the deployment of the template itself that allows the function to evaluate and replace the value in the definition. That means every time the definition is updated, the developer not only needs to incorporate the deployment with the template, they also need to modify the definition outside of the designer to accomplish it. 
+## Why is this task tricky? 
 
-We want to minimize any manual intervention between export of definition from Azure to committing to source code repository. One way we could do that would be to pass the subscriptionId, resourceGroupName, and functionAppName as parameters by taking the output from the connectors-template.json...
-
-``` json
-"outputs": {
-    "functionAppName": {
-      "type": "string",
-      "value": "[variables('functionAppName')]"
-    },
-    "functionAppResourceGroup": {
-      "type": "string",
-      "value": "[variables('sharedResourceGroupName')]"
-    },
-    "subscriptionId": {
-      "type": "string",
-      "value": "[subscription().subscriptionId]"
-    },
-    "logicAppName": {
-      "type": "string",
-      "value": "[variables('logicAppName')]"
-    }
-  }
-```
-
-And defining the logic-app-definition-parameters.json like so.
+The function app action uses the function app's resource ID, which follows this syntax:
 
 ```json
-{
-    "$armValues": {
-        "value": {
-            "functionAppName": "{functionAppName}",
-            "functionAppResourceGroup": "{functionAppResourceGroup}",
-            "subscriptionId": "{subscriptionId}"
-        }
-    }
+"id": "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Web/sites/{functionAppName}/functions/{functionName}"
+```
+
+To get the function app's resource ID, you can use an Azure Resource Manager template function as shown in this [example for referencing dependent resources](https://docs.microsoft.com/azure/logic-apps/logic-apps-create-deploy-template#reference-dependent-resources). However, this technique requires that the logic app definition appear inside the Resource Manager template. The act of deploying the template allows the template function to evaluate and replace the values in the definition. So, each time that you update the definition, not only must you incorporate deployment with the template, you must also update the definition outside of the Logic App Designer to complete this task. Ideally, you want to minimize any manual intervention between exporting the definition from Azure and committing that definition to your source code repository.
+
+To show why this task is tricky, here's an approach that ultimately doesn't work because the function app action tries to read the function app's keys before parameters can get evaluated at deployment. This solution tries to pass the `subscriptionId`, `resourceGroupName`, and `functionAppName` values as variables, which we define as outputs in the `connectors-template.json` file so that we then use these values in the `logic-app-definition-parameters.json` file. For example, the `connectors-template.json` file defines these output variables:
+
+```json
+<other-template-sections>,
+"outputs": {
+   "functionAppName": {
+      "type": "string",
+      "value": "[variables('functionAppName')]"
+   },
+   "functionAppResourceGroup": {
+      "type": "string",
+      "value": "[variables('sharedResourceGroupName')]"
+   },
+   "subscriptionId": {
+     "type": "string",
+     "value": "[subscription().subscriptionId]"
+   },
+   "logicAppName": {
+      "type": "string",
+      "value": "[variables('logicAppName')]"
+   }
 }
 ```
 
-With those in place we should be able to define our ID like so:
+And the `logic-app-definition-parameters.json` file uses these outputs:
 
-```
-"id": "/subscriptions/@parameters('$armValues')['subscriptionId']/resourceGroups/@parameters('$armValues')['functionAppResourceGroup']/providers/Microsoft.Web/sites/@parameters('$armValues')['functionAppName']/functions/AwesomeFunction"
+```json
+<other-definition-parameters>,
+"$azureResourceManagerValues": {
+   "value": {
+      "functionAppName": "{functionAppName}",
+      "functionAppResourceGroup": "{functionAppResourceGroup}",
+      "subscriptionId": "{subscriptionId}"
+   }
+}
 ```
 
-Unfortunately, this won't work. Why? One of the great things about that function app action is that it makes the management and passing around of the function keys not required. When we update the definition with the ID to the function, the action goes out to that function app to list the keys. When it does that, it doesn't wait until after the parameters are evaluated. It uses the raw value passed in so we get an error like this...
+So now, we should be able to define the resource ID by using this syntax:
 
+```json
+"id": "/subscriptions/@parameters('$azureResourceManagerValues')['subscriptionId']/resourceGroups/@parameters('$azureResourceManagerValues')['functionAppResourceGroup']/providers/Microsoft.Web/sites/@parameters('$azureResourceManagerValues')['functionAppName']/functions/AwesomeFunction"
 ```
+
+However, a function app action doesn't require that you manage and pass around the keys for a function. So, when we update the logic app definition by using the function ID, the action tries to read the keys for the function app. The action doesn't wait until deployment when parameters get evaluated, but uses the raw values that are passed as inputs. As a result, we get an error such as `"the linked subscription '@parameters('$azureResourceManagerValues')['subscriptionId']' was not found."` Here's the expanded error message:
+
+```text
 Set-AzResource : LinkedAuthorizationFailed : The client has permission to perform action 'Microsoft.Web/sites/functions/listSecrets/action' on 
-scope '/subscriptions/**********/resourceGroups/**********/providers/Microsoft.Logic/workflows/********', however the linked subscription '@parameters('$armValues')['subscriptionId']' was not found. 
+scope '/subscriptions/**********/resourceGroups/**********/providers/Microsoft.Logic/workflows/********', however the linked subscription '@parameters('$armValues')['subscriptionId']' was not found.
+
 At C:\source\arming-logic-apps\FunctionAppActions\powershell\logic-app-deploy.ps1:435 char:25
 +     $logicAppResource | Set-AzResource -Force;
 +                         ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -76,111 +84,97 @@ At C:\source\arming-logic-apps\FunctionAppActions\powershell\logic-app-deploy.ps
     + FullyQualifiedErrorId : LinkedAuthorizationFailed,Microsoft.Azure.Commands.ResourceManager.Cmdlets.Implementation.SetAzureResourceCmdlet
 ```
 
-Notice the "however the linked subscription '@parameters('$armValues')['subscriptionId']' was not found."
+To successfully deploy the logic app definition, this value must be already set to the function app's resource ID. So, we can't avoid having to manually update the definition so that parameter values are dynamic between environments. However, at the very least, you can separate the definition and the template by changing how you inject values. To let our scripts replace token values before deploying to Azure, change the `id` value to this syntax instead:
 
-In order to get the definition deployed, that value already needs to be set to the resource ID of the function app. So we can't get away from a manual update of the definition to make it dynamic from one environment to another. 
-
-We can at least keep the template and definition separate though. To do that we just need to change how we're injecting those values by changing that "id" value to this...
-
-```
+```json
 "id": "/subscriptions/{subscriptionId}/resourceGroups/{functionAppResourceGroup}/providers/Microsoft.Web/sites/{functionAppName}/functions/AwesomeFunction"
 ```
 
-This will allow our scripts to do a token replacement and inject the values in before pushing to Azure.
+## Set up sample
 
-## Prerequisites
-
-- Install [Azure PowerShell 2.4.0](https://docs.microsoft.com/en-us/powershell/azure/install-az-ps?view=azps-2.4.0) on your platform
-- Install [Azure Functions Core Tools](https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local#v2) on your platform
-
-## Setup
-
-The sample provides options for either running directly from a command line or configuring an Azure DevOps pipeline.
+To set up, deploy, and run this sample, you can use the command line or set up an Azure DevOps pipeline.
 
 ### Command line
 
-To run this sample from the command line, follow these steps.
+1. Clone or download this sample repository.
 
-1. Clone or download this sample repository
-2. Sign in to Azure from you're command line tool of choice
-   
-``` powershell
-Connect-AzAccount
-```
+1. Sign in to Azure by running this command from any command line tool that you want.
 
-3. Select the appropriate [Azure context](https://docs.microsoft.com/en-us/powershell/module/az.accounts/Select-AzContext?view=azps-2.4.0) to target the deployment for
+   ```powershell
+   Connect-AzAccount
+   ```
 
-4. Run the following command from the context of the powershell directory of the sample to execute a full deployment to Azure
+1. To target your deployment, select the appropriate [Azure context](https://docs.microsoft.com/powershell/module/az.accounts/Select-AzContext?view=azps-2.4.0) to use.
 
-``` powershell
-./full-deploy.ps1 -groupId <groupId> -environment <environment> -location <region name>
-```
+1. To push a full deployment for this sample to Azure, run this command from the PowerShell directory that contains this sample:
+
+   ```powershell
+   ./full-deploy.ps1 -groupId <groupId> -environment <environment> -location <regionName>
+   ```
 
 ### Azure DevOps
 
-This sample uses the [Multi-stage YAML pipelines](https://docs.microsoft.com/en-us/azure/devops/pipelines/process/stages?view=azure-devops&tabs=yaml). To setup the sample pipeline follow these steps.
+This sample uses [multi-stage YAML pipelines](https://docs.microsoft.com/azure/devops/pipelines/process/stages?view=azure-devops&tabs=yaml). To set up the sample pipeline, follow these steps:
 
-1. Ensure the Multi-stage pipeline [preview feature](https://docs.microsoft.com/en-us/azure/devops/project/navigation/preview-features?view=azure-devops) is enabled. 
-2. Clone or fork the samples repository into your own repository
-3. Either:
-   - Create an [Azure Resource Manager service connection](https://docs.microsoft.com/en-us/azure/devops/pipelines/library/service-endpoints?view=azure-devops&tabs=yaml#sep-azure-rm) named "Azure Samples Subscription" within your project that points to the Azure Subscription you wish to deploy to
+1. Make sure that the [multi-stage pipeline preview feature](https://docs.microsoft.com/azure/devops/project/navigation/preview-features?view=azure-devops) is enabled.
 
-   or
+1. Clone or fork the samples repository into your own repository.
 
-   - Edit all instances of `azureSubscription: 'Azure Samples Subscription'` within the ./powershell/azure-pipelines.yml file with the name of an existing Azure Resource Manager service connection within your project
+1. Choose one of these steps:
 
-> [!NOTE]
-> The Azure Resource Manager service connection needs to either have the "Allow all pipelines to use this connection" checkbox checked, or you will need to authorize the pipeline you create in the next step to use the service connection.
+   * Create an [Azure Resource Manager service connection](https://docs.microsoft.com/azure/devops/pipelines/library/service-endpoints?view=azure-devops&tabs=yaml#sep-azure-rm) that has the name "Azure Samples Subscription" in your project that points to the Azure subscription that you want to use for deployment.
 
-4. Update the following ./pipeline/azure-pipelines.yml variables
-   - groupId: with a value unique to you and/or your organization. All resources and resource groups created will start with this value
-   - location: with the name of the region you would like to deploy the resources to
-   - abbrevLocationName: with a shortened version of the location name that will used as part of the resource names
-5. Create a new pipeline within your project that uses the ./powershell/azure-pipelines.yml from this sample
-   
-![Animated walk through of creating a new pipeline](../images/create-pipeline.gif)
+   * Edit all instances of `azureSubscription: 'Azure Samples Subscription'` in the `./powershell/azure-pipelines.yml` file by using the name for an existing Azure Resource Manager service connection in your project.
+
+   > [!NOTE]
+   > To use the Azure Resource Manager service connection, make sure that the connection has selected the **Allow all pipelines to use this connection** checkbox. Otherwise, you must authorize the pipeline that you create in the next step.
+
+1. Update these `./pipeline/azure-pipelines.yml` variables:
+
+   * `groupId`: A value that's unique to you or your organization and is used to start the names for all resources and resource groups that are created
+
+   * `location`: The name for the Azure region where you want to deploy the resources
+
+   * `abbrevLocationName`: The abbreviated region name that's used in resource names
+
+1. Create a new pipeline in your project that uses the `./powershell/azure-pipelines.yml` file from this sample.
+
+   ![Animated walkthrough for creating a new pipeline](../images/create-pipeline.gif)
 
 ## Supporting documentation
 
-The following documentation has been provided to help assist in understanding the different pieces of this sample.
+To learn more about the different parts in these samples, review these topics:
 
-- [Concepts](../concepts-review.md): This will cover several of the defining concepts of this sample
-- [Naming Conventions](../naming-convention.md): This will cover the naming conventions applied to the resources created as part of the sample. 
-- [Sample File Definition](../file-definitions.md): This will describe the purpose of the different files within the sample.
-- [Scaling](../api-connection-scale.md): This will cover the reason behind the instanceCount variable and why this sample has the ability to increase the number of copies of the logic apps that are deployed.
+* [Concepts](../concept-review.md) introduces the main concepts that underlie these samples.
 
-## Resources
+* [Naming convention](../naming-convention.md) describes the naming convention to use when creating the resources in these samples.
 
-This sample will create the following resources.
+* [Samples file structure and definitions](../file-definitions.md) explains the purpose for each file in these samples.
 
-![Image depicting the resources deployed by this sample](../images/function-app-sample.png)
+* [Scaling](../api-connection-scale.md) expands on the reasons why these samples provide the capability to scale by increasing the number of copies for the logic apps deployed and organizing resources into separate resource groups.
 
-Review the [Sample File Definition](../file-definitions.md) documentation for an understanding of how these scripts function. 
+## Created resources
 
-This samples contents have the following specifics implemented...
+This sample creates these resources:
 
-### shared-template.json
+![Resources created and deployed by this sample](../images/function-app-sample.png)
 
-The shared content will deploy the function application and all of it's dependent resources. The full-deploy.ps1 also has bits to publish the source from the ./sample=function. Running that script will require the azure function CLI installed on the machine. Keep in mind that full-deploy.ps1 is provided for local execution from a developer machine. the vision for that deployment would that the function apps code would be within it's own CI/CD pipeline.
+To learn about the scripts in this sample and how they work, review [Samples file structure and definitions](../file-definitions.md).
 
-### connectors-template.json
+This sample also implements these template and definition files:
 
-This template will actually not deploy anything. It will however provide the parameters that will be injected into the definition. We use this approach to maintain consistency with the method for injecting parameters into a Logic app with the other samples.
-
-### logic-app-template.json
-
-This will create a shell of logic app. The definition is blank to allow for the separation of resource template from the definition.
-
-### logic-app-definition.json
-
-This has a very simple definition that will use a timer as a trigger and call the AwesomeFunction provided every time the app is triggered.
+| File name | Description |
+|-----------|-------------|
+| `shared-template.json` | This template deploys the Azure function app and all its dependent resources. <p>The `full-deploy.ps1` script not only creates Azure resources for the function app but can publish that app's source from `./sample=function`. You must publish the app first before the logic app definition can work. To run this script, you must have the Azure Function CLI installed on your computer. Remember that the `full-deploy.ps1` script is used for local execution from a development computer. The idea behind this deployment is that the function app's code gets its own CI/CD pipeline. |
+| `connectors-template.json` | This template provides the parameters to inject into the logic app definition but doesn't actually deploy anything. This approach is consistent with the method for injecting parameters into a logic app across the other samples. |
+| `logic-app-template.json` | This template creates a shell for a logic app definition, which is blank to support separating the template from the definition. |
+| `logic-app-definition.json` | This file defines a basic logic app that uses a timer as a trigger and calls the provided `AwesomeFunction` each time that the logic app gets triggered. |
+|||
 
 ## Clean up
 
-To remove the resource groups created by the sample, run the following command from the context of the powershell directory of the sample.
+When you're done with the sample, delete the resource groups that were created by the sample. To remove all the resource groups with names that start with a specific `groupId` value, run this command from the PowerShell directory that contains this sample:
 
-``` powershell
+```powershell
 ./clean-up.ps1 -groupId <groupId>
 ```
-
-This will delete all resource groups that have a name that starts with the groupId provided. 

@@ -9,145 +9,148 @@ products:
   - azure-service-bus
 ---
 
+# Connect to Azure Service Bus queues from Azure Logic Apps
 
-# Connecting to Service Bus queues from Microsoft Azure Logic Apps
+This sample shows how to create Azure Service Bus API connections so that a logic app can read messages from a queue by use one service bus connection while sending messages to a queue by using another service bus connection. To learn more about the template and definition files in this sample and how they work, review [Samples file structure and definitions](../file-definitions.md).
 
-This sample is used to illustrate creating API Connections for a Service Bus to be used by a logic app that will use one service bus connection to read messages while using another service bus connection to send messages.
+## How this sample works
 
-Review the [Sample File Definition](../file-definitions.md) documentation for a understanding of how these scripts function. 
+This sample uses the outputs from creating Azure Service Bus connections and defines these output variables in the `connectors-template.json` file:
 
-This particular sample will use the output variables from the connectors-template.json
-
-``` json
+```json
 "outputs": {
-    "serviceBusManagedApiId": {
+   "serviceBusManagedApiId": {
       "type": "string",
       "value": "[variables('serviceBusConnectionId')]"
-    },
-    "serviceBusConnId1": {
+   },
+   "serviceBusConnId1": {
       "type": "string",
       "value": "[resourceId('Microsoft.Web/connections', concat(variables('serviceBusConnectionName'), '-1'))]"
-    },
-    "serviceBusConnId2": {
+   },
+   "serviceBusConnId2": {
       "type": "string",
       "value": "[resourceId('Microsoft.Web/connections', concat(variables('serviceBusConnectionName'), '-2'))]"
-    },
-    "logicAppName": {
+   },
+   "logicAppName": {
       "type": "string",
       "value": "[variables('logicAppName')]"
-    }
-  }
+   }
+}
 ```
 
-To replace the {serviceBussConnId1},{serviceBussConnId2} and {serviceBusManagedApiId} values in the logic-app-definition-parameters.json and use the resulting value to update the logic app's definition.
+The `logic-app-definition-parameters.json` file replaces the `serviceBusConnId1`, `serviceBusConnId2`, and `serviceBusManagedApiId` values and updates the logic app's definition with the resulting values:
 
 ``` json
 {
-    "$connections": {
-        "value": {
-            "servicebus-1": {
-                "connectionId": "{serviceBusConnId1}",
-                "connectionName": "servicebus-1",
-                "id": "{serviceBusManagedApiId}"
-            },
-            "servicebus-2": {
-                "connectionId": "{serviceBusConnId2}",
-                "connectionName": "servicebus-2",
-                "id": "{serviceBusManagedApiId}"
-            }
-        }
-    }
+   "$connections": {
+      "value": {
+         "servicebus-1": {
+            "connectionId": "{serviceBusConnId1}",
+            "connectionName": "servicebus-1",
+            "id": "{serviceBusManagedApiId}"
+         },
+         "servicebus-2": {
+            "connectionId": "{serviceBusConnId2}",
+            "connectionName": "servicebus-2",
+            "id": "{serviceBusManagedApiId}"
+         }
+      }
+   }
 }
 ```
 
 ## Prerequisites
 
-- Install [Azure PowerShell 2.4.0](https://docs.microsoft.com/en-us/powershell/azure/install-az-ps?view=azps-2.4.0) on your platform
+* Install [Azure PowerShell 2.4.0](https://docs.microsoft.com/powershell/azure/install-az-ps?view=azps-2.4.0) on your platform.
 
-## Setup
+## Set up sample
 
-The sample provides options for either running directly from a command line or configuring an Azure DevOps pipeline.
+To set up, deploy, and run this sample, you can use the command line or set up an Azure DevOps pipeline.
 
 ### Command line
 
 To run this sample from the command line, follow these steps.
 
-1. Clone or download this sample repository
-2. Sign in to Azure from you're command line tool of choice
-   
-``` powershell
-Connect-AzAccount
-```
+1. Clone or download this sample repository.
 
-3. Select the appropriate [Azure context](https://docs.microsoft.com/en-us/powershell/module/az.accounts/Select-AzContext?view=azps-2.4.0) to target the deployment for
+1. Sign in to Azure by running this command from any command line tool that you want.
 
-4. Run the following command from the context of the powershell directory of the sample to execute a full deployment to Azure
+   ```powershell
+   Connect-AzAccount
+   ```
 
-``` powershell
-./full-deploy.ps1 -groupId <groupId> -environment <environment> -location <region name>
-```
+1. To target your deployment, select the appropriate [Azure context](https://docs.microsoft.com/powershell/module/az.accounts/Select-AzContext?view=azps-2.4.0) to use.
+
+1. To push a full deployment for this sample to Azure, run this command from the PowerShell directory that contains this sample:
+
+   ```powershell
+   ./full-deploy.ps1 -groupId <groupId> -environment <environment> -location <regionName>
+   ```
 
 ### Azure DevOps
 
-This sample uses the [Multi-stage YAML pipelines](https://docs.microsoft.com/en-us/azure/devops/pipelines/process/stages?view=azure-devops&tabs=yaml). To setup the sample pipeline follow these steps.
+This sample uses [multi-stage YAML pipelines](https://docs.microsoft.com/azure/devops/pipelines/process/stages?view=azure-devops&tabs=yaml). To set up the sample pipeline, follow these steps:
 
-1. Ensure the Multi-stage pipeline [preview feature](https://docs.microsoft.com/en-us/azure/devops/project/navigation/preview-features?view=azure-devops) is enabled. 
-2. Clone or fork the samples repository into your own repository
-3. Either:
-   - Create an [Azure Resource Manager service connection](https://docs.microsoft.com/en-us/azure/devops/pipelines/library/service-endpoints?view=azure-devops&tabs=yaml#sep-azure-rm) named "Azure Samples Subscription" within your project that points to the Azure Subscription you wish to deploy to
+1. Make sure that the [multi-stage pipeline preview feature](https://docs.microsoft.com/azure/devops/project/navigation/preview-features?view=azure-devops) is enabled.
 
-   or
+1. Clone or fork the samples repository into your own repository.
 
-   - Edit all instances of `azureSubscription: 'Azure Samples Subscription'` within the ./powershell/azure-pipelines.yml file with the name of an existing Azure Resource Manager service connection within your project
+1. Choose one of these steps:
 
-> [!NOTE]
-> The Azure Resource Manager service connection needs to either have the "Allow all pipelines to use this connection" checkbox checked, or you will need to authorize the pipeline you create in the next step to use the service connection.
+   * Create an [Azure Resource Manager service connection](https://docs.microsoft.com/azure/devops/pipelines/library/service-endpoints?view=azure-devops&tabs=yaml#sep-azure-rm) that has the name "Azure Samples Subscription" in your project that points to the Azure subscription that you want to use for deployment.
 
-4. Update the following ./pipeline/azure-pipelines.yml variables
-   - groupId: with a value unique to you and/or your organization. All resources and resource groups created will start with this value
-   - location: with the name of the region you would like to deploy the resources to
-   - abbrevLocationName: with a shortened version of the location name that will used as part of the resource names
-5. Create a new pipeline within your project that uses the ./powershell/azure-pipelines.yml from this sample
-   
-![Animated walk through of creating a new pipeline](../images/create-pipeline.gif)
+   * Edit all instances of `azureSubscription: 'Azure Samples Subscription'` in the `./powershell/azure-pipelines.yml` file by using the name for an existing Azure Resource Manager service connection in your project.
+
+   > [!NOTE]
+   > To use the Azure Resource Manager service connection, make sure that the connection has selected the **Allow all pipelines to use this connection** checkbox. Otherwise, you must authorize the pipeline that you create in the next step.
+
+1. Update these `./pipeline/azure-pipelines.yml` variables:
+
+   * `groupId`: A value that's unique to you or your organization and is used to start the names for all resources and resource groups that are created
+
+   * `location`: The name for the Azure region where you want to deploy the resources
+
+   * `abbrevLocationName`: The abbreviated region name that's used in resource names
+
+1. Create a new pipeline in your project that uses the `./powershell/azure-pipelines.yml` file from this sample.
+
+   ![Animated walkthrough for creating a new pipeline](../images/create-pipeline.gif)
 
 ## Supporting documentation
 
-The following documentation has been provided to help assist in understanding the different pieces of this sample.
+To learn more about the different parts in these samples, review these topics:
 
-- [Concepts](../concepts-review.md): This will cover several of the defining concepts of this sample
-- [Naming Conventions](../naming-convention.md): This will cover the naming conventions applied to the resources created as part of the sample. 
-- [Sample File Definition](../file-definitions.md): This will describe the purpose of the different files within the sample.
-- [Scaling](../api-connection-scale.md): This will cover the reason behind the instanceCount variable and why this sample has the ability to increase the number of copies of the logic apps that are deployed.
+* [Concepts](../concept-review.md) introduces the main concepts that underlie these samples.
+
+* [Naming convention](../naming-convention.md) describes the naming convention to use when creating the resources in these samples.
+
+* [Samples file structure and definitions](../file-definitions.md) explains the purpose for each file in these samples.
+
+* [Scaling](../api-connection-scale.md) expands on the reasons why these samples provide the capability to scale by increasing the number of copies for the logic apps deployed and organizing resources into separate resource groups.
 
 ## Resources
 
-This sample will create the following resources.
+This sample creates these resources:
 
-![Image depicting the resources deployed by this sample](../images/servicebus-sample.png)
+![Resources created and deployed by this sample](../images/servicebus-sample.png)
 
-### Shared-template
+To learn about the scripts in this sample and how they work, review [Samples file structure and definitions](../file-definitions.md).
 
-The shared template will create a single service bus resource with 2 queue's configured queue_1 and queue_2.
+This sample also implements these template and definition files:
 
-### Connectors-template
-
-This template will create two Service Bus API Connections. Both configured with the connection strings to the service bus created by the shared_template
-
-### Logic-app-template
-
-This will create a shell of the logic app. The definition is blank to allow for the separation of the resource template from the definition.
-
-### Logic-app-definition
-
-This has a very simple logic app definition that will pull a message from queue_1, using one of the API Connections and send the message to queue_2 using the other API connection. The logic-app-definition-parameters.json file contains configuration for the connectors.
+| File name | Description |
+|-----------|-------------|
+| `shared-template.json` | This template creates a single service bus resource that sets up the `queue_1` and `queue_2` queues. |
+| `connectors-template.json` | This template creates two Service Bus API connections. Both connections are set up with the connection strings for the service bus that's created by the `shared_template.json` file. |
+| `logic-app-template.json` | This template creates a shell for a logic app definition, which is blank to support separating the template from the definition. |
+| `logic-app-definition.json` | This file defines a basic logic app that gets a message from `queue_1` by using one API connection and sends the message to `queue_2` by using the other API connection. |
+| `logic-app-definition-parameters.json` | This file contains the setup information for the Azure Service Bus connectors. |
+|||
 
 ## Clean up
 
-To remove the resource groups created by the sample, run the following command from the context of the powershell directory of the sample.
+When you're done with the sample, delete the resource groups that were created by the sample. To remove all the resource groups with names that start with a specific `groupId` value, run this command from the PowerShell directory that contains this sample:
 
-``` powershell
+```powershell
 ./clean-up.ps1 -groupId <groupId>
 ```
-
-This will delete all resource groups that have a name that starts with the groupId provided. 
