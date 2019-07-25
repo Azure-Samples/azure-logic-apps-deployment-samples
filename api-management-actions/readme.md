@@ -1,12 +1,15 @@
-# Set up an Azure API management action for Azure Logic Apps
+# Set up an Azure API Management action for Azure Logic Apps
 
 **This sample is a work in progress. Work remaining:**
 
-* automate import of function app into API management
-* update logic app definition to use API management action instead of function app action
-* update readme.md with relevant information about the sample. Most of the content will be the same as the function app sample differences are:
-  * Automating the function app's import
-  * Securing the function app from traffic not routed through API management
+* Automate import of function app into API Management.
+* Update logic app definition to use API Management action instead of function app action.
+* Update readme.md with relevant information about the sample. Most of the content will be the same as the function app sample.
+
+Differences are:
+
+  * Automate the function app's import.
+  * Secure the function app from traffic not routed through API Management.
 
 ## Prerequisites
 

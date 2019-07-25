@@ -1,4 +1,4 @@
-# Samples introduction
+# Azure Logic Apps: Set up a continuous integration (CI) and continuous delivery (CD) pipeline
 
 These samples show some strategies that you can use to implement a continuous integration (CI) and continuous delivery (CD) pipeline for Azure Logic Apps.
 
@@ -20,4 +20,4 @@ To learn more about the different parts in these samples, review these topics:
 * [Azure Service Bus connections](./service-bus-connections/)
 * [Azure storage account connections](./storage-account-connections/)
 * [Integration account connections](./integration-account-connections/)
-* API Management actions
+* [API Management actions](./api-management-actions/)
