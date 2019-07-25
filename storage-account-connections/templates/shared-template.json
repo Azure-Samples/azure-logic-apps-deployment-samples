@@ -12,7 +12,7 @@
             "type": "string",
             "defaultValue": "d",
             "metadata": {
-                "description": "The alphabetical character that identifies the deployment environment to use in the name for each created resource. For example, values include "d" for development, "t" for test, "s" for staging, and "p" for production."
+                "description": "The alphabetical character that identifies the deployment environment to use in the name for each created resource. For example, values include 'd' for development, 't' for test, 's' for staging, and 'p' for production."
             }
         },
         "locationName": {
