@@ -1,4 +1,4 @@
-# Samples introduction
+# Azure Logic Apps: Set up a continuous integration (CI) and continuous delivery (CD) pipeline
 
 These samples show some strategies that you can use to implement a continuous integration (CI) and continuous delivery (CD) pipeline for Azure Logic Apps.
 
