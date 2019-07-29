@@ -11,7 +11,7 @@ products:
 
 # Connect to Azure Service Bus queues from Azure Logic Apps and deploy with Azure DevOps Pipelines
 
-This sample shows how to create a logic app that handles messages in an Azure Service Bus queue and is deployed by using Azure DevOps Pipelines. The logic app creates Azure Service Bus API connections: one connection reads messages from the queue while the other connection sends messages to the queue. To learn more about the template and definition files in this sample and how they work, review [Samples file structure and definitions](../file-definitions.md).
+This sample shows how to create a logic app that handles messages in an Azure Service Bus queue and deploy the app by using Azure DevOps Pipelines. The logic app creates Azure Service Bus API connections: one connection reads messages from the queue while the other connection sends messages to the queue. To learn more about the template and definition files in this sample and how they work, review [Samples file structure and definitions](../file-definitions.md).
 
 ## How this sample works
 
