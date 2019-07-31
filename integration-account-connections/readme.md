@@ -8,9 +8,11 @@ products:
   - azure-resource-manager
 ---
 
-# Connect to an integration account from Azure Logic Apps
+# Connect to an integration account from Azure Logic Apps and deploy by using Azure DevOps Pipelines
 
-This sample shows how to set up a connection from your logic app to an integration account:
+This sample shows how to create a logic app that handles X12 messages by connecting to an integration account and deploy the app by using Azure DevOps Pipelines. 
+
+In this topic, you complete the following tasks:
 
 * Set up the logic app with a connection to an integration account, which is used by most of the integration account's related actions.
 

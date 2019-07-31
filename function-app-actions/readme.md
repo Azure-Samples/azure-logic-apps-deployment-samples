@@ -9,9 +9,9 @@ products:
   - azure-resource-manager
 ---
 
-# Set up an Azure function app action for Azure Logic Apps
+# Set up an Azure function app action for Azure Logic Apps and deploy with Azure DevOps Pipelines
 
-This sample shows how to set up a function app action within a logic app deployment. However, this task can pose a challenge because a function app action uses the function app's resource ID, which isn't available until deployment. To learn more about the template and definition files in this sample and how they work, review [Samples file structure and definitions](../file-definitions.md).
+This sample shows how to set up a function app action by creating and deploying a logic app by using Azure DevOps Pipelines. However, this task can pose a challenge because a function app action uses the function app's resource ID, which isn't available until deployment. To learn more about the template and definition files in this sample and how they work, review [Samples file structure and definitions](../file-definitions.md).
 
 ## Prerequisites
 
