@@ -5,7 +5,7 @@ languages:
 products:
   - azure
   - azure-functions
-  - logic-apps
+  - azure-logic-apps
   - azure-resource-manager
 ---
 
