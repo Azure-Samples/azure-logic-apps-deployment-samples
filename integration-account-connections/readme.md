@@ -4,7 +4,7 @@ languages:
   - azurepowershell
 products:
   - azure
-  - azure-logic-apps
+  - logic-apps
   - azure-resource-manager
 ---
 
