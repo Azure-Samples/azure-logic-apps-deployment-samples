@@ -69,26 +69,32 @@ And the `logic-app-definition-parameters.json` file uses these outputs:
 So now, we should be able to define the resource ID by using this syntax:
 
 ```json
-"id": "/subscriptions/@parameters('$azureResourceManagerValues')['subscriptionId']/resourceGroups/@parameters('$azureResourceManagerValues')['functionAppResourceGroup']/providers/Microsoft.Web/sites/@parameters('$azureResourceManagerValues')['functionAppName']/functions/AwesomeFunction"
+"id": "/subscriptions/@parameters('$azureResourceManagerValues')['subscriptionId']/
+   resourceGroups/@parameters('$azureResourceManagerValues')['functionAppResourceGroup']/
+   providers/Microsoft.Web/sites/@parameters('$azureResourceManagerValues')['functionAppName']/functions/AwesomeFunction"
 ```
 
 However, a function app action doesn't require that you manage and pass around the keys for a function. So, when we update the logic app definition by using the function ID, the action tries to read the keys for the function app. The action doesn't wait until deployment when parameters get evaluated, but uses the raw values that are passed as inputs. As a result, we get an error such as `"the linked subscription '@parameters('$azureResourceManagerValues')['subscriptionId']' was not found."` Here's the expanded error message:
 
 ```text
-Set-AzResource : LinkedAuthorizationFailed : The client has permission to perform action 'Microsoft.Web/sites/functions/listSecrets/action' on 
-scope '/subscriptions/**********/resourceGroups/**********/providers/Microsoft.Logic/workflows/********', however the linked subscription '@parameters('$armValues')['subscriptionId']' was not found.
+Set-AzResource : LinkedAuthorizationFailed : The client has permission to perform action 'Microsoft.Web/
+   sites/functions/listSecrets/action' on scope '/subscriptions/**********/resourceGroups/**********/
+   providers/Microsoft.Logic/workflows/********', however the linked subscription 
+   '@parameters('$armValues')['subscriptionId']' was not found.
 
 At C:\source\arming-logic-apps\FunctionAppActions\powershell\logic-app-deploy.ps1:435 char:25
-+     $logicAppResource | Set-AzResource -Force;
-+                         ~~~~~~~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : CloseError: (:) [Set-AzResource], ErrorResponseMessageException
-    + FullyQualifiedErrorId : LinkedAuthorizationFailed,Microsoft.Azure.Commands.ResourceManager.Cmdlets.Implementation.SetAzureResourceCmdlet
++   $logicAppResource | Set-AzResource -Force;
++                   ~~~~~~~~~~~~~~~~~~~~~~~~~~
+   + CategoryInfo : CloseError: (:) [Set-AzResource], ErrorResponseMessageException
+   + FullyQualifiedErrorId : LinkedAuthorizationFailed,Microsoft.Azure.Commands.ResourceManager.
+     Cmdlets.Implementation.SetAzureResourceCmdlet
 ```
 
 To successfully deploy the logic app definition, this value must be already set to the function app's resource ID. So, we can't avoid having to manually update the definition so that parameter values are dynamic between environments. However, at the very least, you can separate the definition and the template by changing how you inject values. To let our scripts replace token values before deploying to Azure, change the `id` value to this syntax instead:
 
 ```json
-"id": "/subscriptions/{subscriptionId}/resourceGroups/{functionAppResourceGroup}/providers/Microsoft.Web/sites/{functionAppName}/functions/AwesomeFunction"
+"id": "/subscriptions/{subscriptionId}/resourceGroups/{functionAppResourceGroup}/
+   providers/Microsoft.Web/sites/{functionAppName}/functions/AwesomeFunction"
 ```
 
 ## Set up sample
