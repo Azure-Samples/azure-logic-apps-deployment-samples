@@ -22,8 +22,9 @@ This sample shows how to set up a function app action by creating and deploying 
 
 The function app action uses the function app's resource ID, which follows this syntax:
 
-```json
-"id": "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Web/sites/{functionAppName}/functions/{functionName}"
+```text
+"id": "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/
+      providers/Microsoft.Web/sites/{functionAppName}/functions/{functionName}"
 ```
 
 To get the function app's resource ID, you can use an Azure Resource Manager template function as shown in this [example for referencing dependent resources](https://docs.microsoft.com/azure/logic-apps/logic-apps-create-deploy-template#reference-dependent-resources). However, this technique requires that the logic app definition appear inside the Resource Manager template. The act of deploying the template allows the template function to evaluate and replace the values in the definition. So, each time that you update the definition, not only must you incorporate deployment with the template, you must also update the definition outside of the Logic App Designer to complete this task. Ideally, you want to minimize any manual intervention between exporting the definition from Azure and committing that definition to your source code repository.
