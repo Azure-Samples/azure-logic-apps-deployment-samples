@@ -9,7 +9,7 @@ products:
   - azure-resource-manager
 ---
 
-# Set up an Azure function app action for Azure Logic Apps and deploy with Azure DevOps Pipelines
+# Set up an Azure Function App action for Azure Logic Apps and deploy with Azure DevOps Pipelines
 
 This sample shows how to set up a function app action by creating and deploying a logic app by using Azure DevOps Pipelines. However, this task can pose a challenge because a function app action uses the function app's resource ID, which isn't available until deployment. To learn more about the template and definition files in this sample and how they work, review [Samples file structure and definitions](../file-definitions.md).
 
@@ -172,7 +172,7 @@ This sample also implements these template and definition files:
 
 | File name | Description |
 |-----------|-------------|
-| `shared-template.json` | This template deploys the Azure function app and all its dependent resources. <p>The `full-deploy.ps1` script not only creates Azure resources for the function app but can publish that app's source from `./sample=function`. You must publish the app first before the logic app definition can work. To run this script, you must have the Azure Function CLI installed on your computer. Remember that the `full-deploy.ps1` script is used for local execution from a development computer. The idea behind this deployment is that the function app's code gets its own CI/CD pipeline. |
+| `shared-template.json` | This template deploys the Azure Function App and all its dependent resources. <p>The `full-deploy.ps1` script not only creates Azure resources for the function app but can publish that app's source from `./sample=function`. You must publish the app first before the logic app definition can work. To run this script, you must have the Azure Function CLI installed on your computer. Remember that the `full-deploy.ps1` script is used for local execution from a development computer. The idea behind this deployment is that the function app's code gets its own CI/CD pipeline. |
 | `connectors-template.json` | This template provides the parameters to inject into the logic app definition but doesn't actually deploy anything. This approach is consistent with the method for injecting parameters into a logic app across the other samples. |
 | `logic-app-template.json` | This template creates a shell for a logic app definition, which is blank to support separating the template from the definition. |
 | `logic-app-definition.json` | This file defines a basic logic app that uses a timer as a trigger and calls the provided `AwesomeFunction` each time that the logic app gets triggered. |
