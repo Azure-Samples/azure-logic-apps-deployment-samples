@@ -1,7 +1,7 @@
 ---
 page_type: sample
 languages:
-  - azurepowershell
+  - csharp
 products:
   - azure
   - azure-functions
