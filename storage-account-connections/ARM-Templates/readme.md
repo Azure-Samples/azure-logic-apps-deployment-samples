@@ -11,9 +11,11 @@ products:
 
 # Connect to Azure Storage accounts from Azure Logic Apps and deploy with Azure DevOps Pipelines
 
-This sample shows how to create a logic app that connects to different Azure Storage containers (Blob, Table, Queue, and File) and deploy the app by using Azure DevOps Pipelines. The logic app definition isn't complex, so the goal for this sample focuses on how to create these connections for use by the logic app definition. To learn more about the template and definition files in this sample and how they work, review [Samples file structure and definitions](../file-definitions.md).
+This sample shows how to create a logic app that connects to different Azure Storage containers (Blob, Table, Queue, and File) and deploy the app by using Azure DevOps Pipelines using Bicep Templates. The logic app definition isn't complex, so the goal for this sample focuses on how to create these connections for use by the logic app definition. To learn more about the template and definition files in this sample and how they work, review [Samples file structure and definitions](../../file-definitions.md).
 
 ## How this sample works
+
+TODO
 
 This sample uses the outputs from creating Azure Storage connections and defines these output variables in the `connectors-template.json` file:
 
