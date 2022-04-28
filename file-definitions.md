@@ -2,7 +2,9 @@
 
 All the samples that create a continuous integration (CI) and continuous delivery (CD) pipeline for Azure Logic Apps follow a similar file structure. Although some minor differences exist, each sample contains the files described in this topic.
 
-## PowerShell scripts
+## ARM Templates Based Deployments
+
+### PowerShell scripts
 
 The scripts in each sample follow the workflow that's described by this diagram:
 
@@ -16,7 +18,7 @@ The scripts in each sample follow the workflow that's described by this diagram:
 | `clean-up.ps1` | Removes all the resources that are deployed by a sample. Examines your subscription, finds all the resource groups that start with the group ID that's passed in, and deletes those groups. <p>**Caution**: Proceed carefully when you run this script. |
 |||
 
-## Templates
+### Templates
 
 | Template file name | Description |
 |--------------------|-------------|
@@ -29,3 +31,11 @@ The scripts in each sample follow the workflow that's described by this diagram:
 | `shared-template.json` | This Azure Resource Manager template sets up the shared resources used by the logic app and deploys those resources to a separate resource group for these reasons: <p>- **Separate concerns**: These resources, such as databases, storage accounts, and event hubs, are most likely used by resources other than just the logic app. <p>- **Scaling**: These samples provide the capability to scale the logic app's implementations, or more specifically, the API connection implementations. The shared resources in this resource group don't require the scaling capability that other resources require. For more information, see the [Scaling](./api-connection-scale.md) topic. <p>- **Lifecycle management**: The lifespan for the shared resources in this resource group likely differ from the logic app. For example, future demands might require that you replace the logic app with an alternative solution. Separate resource groups gives you the flexibility to replace logic apps without having to cherry pick resources from a single resource group that stores all the resources together. <p>- **Rate of change**: Usually, the rate of change in shared resources templates is much lower than the rate of change in logic apps. |
 | `shared-template-parameters.json` (optional) | This file contains the parameters that deploy with the `shared-template.json` file. <p>- If this file is provided, the parameters that pass in during script execution get appended to the parameters defined in this file. <p>- If this file isn't provided, the parameters that pass in during script execution get passed along as a hash table to the shared resources template during deployment. |
 |||
+
+## Bicep Based Deployments
+
+TODO
+
+### Templates
+
+### Azure Pipelines
