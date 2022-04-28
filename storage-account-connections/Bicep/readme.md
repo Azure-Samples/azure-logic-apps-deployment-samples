@@ -186,7 +186,7 @@ To run this sample from the command line, follow these steps. You can use the Az
       * `northeurope`: `neu`
       * `westeurope`: `weu`
       * `westus`: `wus`
-      * `eastus`: `eus`
+      * `eastus`: `eus`  
    The default is the resource group location.
 
    To deploy to a different region, update the `locationAbbr` variable to include the region in [shared.bicep](./templates/shared.bicep), [connectors.bicep](./templates/connectors.bicep), and [logic-app.bicep](./templates/logic-app.bicep).
