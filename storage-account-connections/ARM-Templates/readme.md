@@ -156,13 +156,13 @@ This sample uses [multi-stage YAML pipelines](https://docs.microsoft.com/azure/d
 
 To learn more about the different parts in these samples, review these topics:
 
-* [Concepts](../../concept-review.md) introduces the main concepts that underlie these samples.
+* [Concepts](../../concepts-review.md) introduces the main concepts that underlie these samples.
 
-* [Naming convention](...///naming-convention.md) describes the naming convention to use when creating the resources in these samples.
+* [Naming convention](../../naming-convention.md) describes the naming convention to use when creating the resources in these samples.
 
 * [Samples file structure and definitions](../../file-definitions.md) explains the purpose for each file in these samples.
 
-* [Scaling](../api-connection-scale.md) expands on the reasons why these samples provide the capability to scale by increasing the number of copies for the logic apps deployed and organizing resources into separate resource groups.
+* [Scaling](../../api-connection-scale.md) expands on the reasons why these samples provide the capability to scale by increasing the number of copies for the logic apps deployed and organizing resources into separate resource groups.
 
 ## Resources
 
