@@ -13,81 +13,59 @@ products:
 
 # Connect to Azure Storage accounts from Azure Logic Apps and deploy with Azure DevOps Pipelines
 
-This sample shows how to create a logic app that connects to different Azure Storage containers (Blob, Table, Queue, and File) and deploy the app by using Azure DevOps Pipelines. The logic app definition isn't complex, so the goal for this sample focuses on how to create these connections for use by the logic app definition. To learn more about the template and definition files in this sample and how they work, review [Samples file structure and definitions](../../file-definitions.md).
+This sample shows how to create a logic app that connects to different Azure Storage containers (Blob, Table, Queue, and File) using [Bicep](https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/overview?tabs=bicep) and deploy the app by using Azure DevOps Pipelines. The logic app definition isn't complex, so the goal for this sample focuses on how to create these connections for use by the logic app definition. To learn more about the template and definition files in this sample and how they work, review [Samples file structure and definitions](../../file-definitions.md#bicep-based-deployments).
 
 ## How this sample works
 
-This sample uses the outputs from creating Azure Storage connections and defines these output variables in the `connectors-template.json` file:
+Unlike the [ARM Templates](../ARM-Templates/) sample, the deployment using Bicep is self-contained and can be performed in a single step. This simplifies the deployment process with the added advantage of the improved readability, modularisation, and features of the Bicep language. The way this is achieved is by using [Bicep Modules](https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/modules). The Bicep files have the following structure:
 
-``` json
-"outputs": {
-   "tablesManagedApiId": {
-      "type": "string",
-      "value": "[variables('tablesConnectionId')]"
-   },
-   "tablesConnId": {
-      "type": "string",
-      "value": "[resourceId('Microsoft.Web/connections', variables('tablesConnectionName'))]"
-   },
-   "fileManagedApiId": {
-      "type": "string",
-      "value": "[variables('fileConnectionId')]"
-   },
-   "fileConnId": {
-      "type": "string",
-      "value": "[resourceId('Microsoft.Web/connections', variables('fileConnectionName'))]"
-   },
-   "blobManagedApiId": {
-      "type": "string",
-      "value": "[variables('blobConnectionId')]"
-   },
-   "blobConnId": {
-      "type": "string",
-      "value": "[resourceId('Microsoft.Web/connections', variables('blobConnectionName'))]"
-   },
-   "queuesManagedApiId": {
-      "type": "string",
-      "value": "[variables('queuesConnectionId')]"
-   },
-   "queuesConnId": {
-      "type": "string",
-      "value": "[resourceId('Microsoft.Web/connections', variables('queuesConnectionName'))]"
-   },
-   "logicAppName": {
-      "type": "string",
-      "value": "[variables('logicAppName')]"
-   }
-}
+``` mermaid
+   graph TD
+      A[main.bicep] -- Deploy Storage Account --> B[shared.bicep]
+      A -- Deploy Connectors --> C[connectors.bicep]
+      A -- Deploy Logic App and workflow --> D[logic-app.bicep]
+      D -- Read --> E[workflow.json]
 ```
 
-The `logic-app-definition-parameters.json` file replaces the various token values and updates the logic app's definition with the resulting values:
+This sample uses the outputs from creating Azure Storage connections and defines these output values in the [connectors.bicep](./templates/connectors.bicep) file:
 
-``` json
-{
-   "$connections": {
-      "value": {
-         "azuretables": {
-            "connectionId": "{tablesConnId}",
-            "connectionName": "azuretables",
-            "id": "{tablesManagedApiId}"
-         },
-         "azureblob": {
-            "connectionId": "{blobConnId}",
-            "connectionName": "azureblob",
-            "id": "{blobManagedApiId}"
-         },
-         "azurefile": {
-            "connectionId": "{fileConnId}",
-            "connectionName": "azurefile",
-            "id": "{fileManagedApiId}"
-         },
-         "azurequeues": {
-            "connectionId": "{queuesConnId}",
-            "connectionName": "azurequeues",
-            "id": "{queuesManagedApiId}"
-         }
-      }
-   }
+``` bicep
+output tablesManagedApiId string = tablesConnectionId
+output tablesConnId string = tablesConnection.id
+output fileManagedApiId string = fileConnectionId
+output fileConnId string = fileConnection.id
+output blobManagedApiId string = blobConnectionId
+output blobConnId string = blobConnection.id
+output queuesManagedApiId string = queuesConnectionId
+output queuesConnId string = queuesConnection.id
+```
+
+The [main.bicep](./templates/main.bicep) file uses these outputs and passes them to the [logic-app.bicep](./templates/logic-app.bicep) file as parameters. The values are then used to configure the parameter to pass to the Logic App resource for deployment:
+
+``` bicep
+'$connections': {
+  value: {
+    azuretables: {
+      connectionId: tablesConnId
+      connectionName: 'azuretables'
+      id: tablesManagedApiId
+    }
+    azureblob: {
+      connectionId: blobConnId
+      connectionName: 'azureblob'
+      id: blobManagedApiId
+    }
+    azurefile: {
+      connectionId: fileConnId
+      connectionName: 'azurefile'
+      id: fileManagedApiId
+    }
+    azurequeues: {
+      connectionId: queuesConnId
+      connectionName: 'azurequeues'
+      id: queuesManagedApiId
+    }
+  }
 }
 ```
 
