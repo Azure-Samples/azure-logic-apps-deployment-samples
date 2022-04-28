@@ -175,18 +175,19 @@ To run this sample from the command line, follow these steps. You can use the Az
    Where parameters in [square brackets] are optional.
 
    `environment` supports the following values:
-      * `d` - Development Environment
+      * `d` - Development Environment (Default)
       * `t` - Test Environment
       * `s` - Staging Environment
       * `p` - Production Environment  
 
-   `location` supports any [Azure Region](https://docs.microsoft.com/en-us/azure/availability-zones/az-overview#azure-regions-with-availability-zones) with the space removed. This is because the region is also used to include a region abbreviation in resource names. The sample includes the following regions and abbreviations
+   `location` supports any [Azure Region](https://docs.microsoft.com/en-us/azure/availability-zones/az-overview#azure-regions-with-availability-zones) with the space removed. The location is also used to include a region abbreviation in resource names which is dynamically determined at runtime. The sample includes the following regions and abbreviations
       * `uksouth`: `uks`
       * `ukwest`: `ukw`
       * `northeurope`: `neu`
       * `westeurope`: `weu`
       * `westus`: `wus`
       * `eastus`: `eus`
+   The default is the resource group location.
 
    To deploy to a different region, update the `locationAbbr` variable to include the region in [shared.bicep](./templates/shared.bicep), [connectors.bicep](./templates/connectors.bicep), and [logic-app.bicep](./templates/logic-app.bicep).
 
@@ -219,13 +220,13 @@ This sample uses [multi-stage YAML pipelines](https://docs.microsoft.com/azure/d
 
 To learn more about the different parts in these samples, review these topics:
 
-* [Concepts](../concept-review.md) introduces the main concepts that underlie these samples.
+* [Concepts](../../concept-review.md) introduces the main concepts that underlie these samples.
 
-* [Naming convention](../naming-convention.md) describes the naming convention to use when creating the resources in these samples.
+* [Naming convention](../../naming-convention.md) describes the naming convention to use when creating the resources in these samples.
 
-* [Samples file structure and definitions](../file-definitions.md) explains the purpose for each file in these samples.
+* [Samples file structure and definitions](../../file-definitions.md#bicep-based-deployments) explains the purpose for each file in these samples.
 
-* [Scaling](../api-connection-scale.md) expands on the reasons why these samples provide the capability to scale by increasing the number of copies for the logic apps deployed and organizing resources into separate resource groups.
+* [Scaling](../../api-connection-scale.md) expands on the reasons why these samples provide the capability to scale by increasing the number of copies for the logic apps deployed and organizing resources into separate resource groups.
 
 ## Resources
 
@@ -233,7 +234,7 @@ This sample creates these resources:
 
 ![Resources created and deployed by this sample](../../images/storage-sample-bicep.png)
 
-To learn about the scripts in this sample and how they work, review [Samples file structure and definitions](../file-definitions.md#bicep-based-deployments).
+To learn about the scripts in this sample and how they work, review [Samples file structure and definitions](../../file-definitions.md#bicep-based-deployments).
 
 This sample also implements these template and definition files:
 
@@ -242,9 +243,9 @@ This sample also implements these template and definition files:
 | [shared.bicep](./templates/shared.bicep) | This template creates a single storage account resource that has two blob containers, two storage queues, two file shares, and two storage tables. |
 | [connectors.bicep](./templates/connectors.bicep) | This template creates an API connection resource for Azure Tables, Files, Blobs, and Queues and outputs the values required for the workflow paramters. |
 | [logic-app.bicep](./templates/logic-app.bicep) | This template creates the Logic App Workflow resource and deploys the workflow by reading the workflow.json file dynamically. |
-| `workflow.json` | This file defines a basic logic app workflow that gets a message from `samplequeue1`, creates a blob file from the message content, writes an entity into the storage table, and creates a file in the file share. |
-| `workflow.parameters.json` | This file contains the structure required for the `$connections` parameter to be passed to the Logic App Workflow resource. This is not used by the sample directly, but can be used as a reference for the structure and required values of the parameter. |
-| `bicepconfig.json` | This file contains configuration for how the Bicep tools will behave when working in VS Code and deploying using the CLI tools. |
+| [workflow.json](./templates/workflow.json) | This file defines a basic logic app workflow that gets a message from `samplequeue1`, creates a blob file from the message content, writes an entity into the storage table, and creates a file in the file share. |
+| [workflow.parameters.json](./templates/workflow.parameters.json) | This file contains the structure required for the `$connections` parameter to be passed to the Logic App Workflow resource. This is not used by the sample directly, but can be used as a reference for the structure and required values of the parameter. |
+| [bicepconfig.json](./templates/bicepconfig.json) | This file contains configuration for how the Bicep tools will behave when working in VS Code and deploying using the CLI tools. |
 |||
 
 ## Clean up

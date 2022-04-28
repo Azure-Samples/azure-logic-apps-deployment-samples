@@ -150,17 +150,17 @@ This sample uses [multi-stage YAML pipelines](https://docs.microsoft.com/azure/d
 
 1. Create a new pipeline in your project that uses the `./powershell/azure-pipelines.yml` file from this sample.
 
-   ![Animated walkthrough for creating a new pipeline](../images/create-pipeline.gif)
+   ![Animated walkthrough for creating a new pipeline](../../images/create-pipeline.gif)
 
 ## Supporting documentation
 
 To learn more about the different parts in these samples, review these topics:
 
-* [Concepts](../concept-review.md) introduces the main concepts that underlie these samples.
+* [Concepts](../../concept-review.md) introduces the main concepts that underlie these samples.
 
-* [Naming convention](../naming-convention.md) describes the naming convention to use when creating the resources in these samples.
+* [Naming convention](...///naming-convention.md) describes the naming convention to use when creating the resources in these samples.
 
-* [Samples file structure and definitions](../file-definitions.md) explains the purpose for each file in these samples.
+* [Samples file structure and definitions](../../file-definitions.md) explains the purpose for each file in these samples.
 
 * [Scaling](../api-connection-scale.md) expands on the reasons why these samples provide the capability to scale by increasing the number of copies for the logic apps deployed and organizing resources into separate resource groups.
 
@@ -168,9 +168,9 @@ To learn more about the different parts in these samples, review these topics:
 
 This sample creates these resources:
 
-![Resources created and deployed by this sample](../images/storage-sample.png)
+![Resources created and deployed by this sample](../../images/storage-sample.png)
 
-To learn about the scripts in this sample and how they work, review [Samples file structure and definitions](../file-definitions.md).
+To learn about the scripts in this sample and how they work, review [Samples file structure and definitions](../../file-definitions.md).
 
 This sample also implements these template and definition files:
 
