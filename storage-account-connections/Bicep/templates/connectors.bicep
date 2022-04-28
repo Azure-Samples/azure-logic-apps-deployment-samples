@@ -31,13 +31,13 @@ var locationAbbr = {
 }
 var baseName = '${workflowNamePrefix}-${environment}'
 var baseConnectionsId = '/subscriptions/${subscription().subscriptionId}/providers/Microsoft.Web/locations/${location}/managedApis/'
-var tablesConnectionName = '${baseName}-tables-${locationAbbr[location]}'
+var tablesConnectionName = '${baseName}-${locationAbbr[location]}-tables-apicn'
 var tablesConnectionId = '${baseConnectionsId}azuretables'
-var blobConnectionName = '${baseName}-blob-${locationAbbr[location]}'
+var blobConnectionName = '${baseName}-${locationAbbr[location]}-blob-apicn'
 var blobConnectionId = '${baseConnectionsId}azureblob'
-var fileConnectionName = '${baseName}-file-${locationAbbr[location]}'
+var fileConnectionName = '${baseName}-${locationAbbr[location]}-file-apicn'
 var fileConnectionId = '${baseConnectionsId}azurefile'
-var queuesConnectionName = '${baseName}-queue-${locationAbbr[location]}'
+var queuesConnectionName = '${baseName}-${locationAbbr[location]}-queue-apicn'
 var queuesConnectionId = '${baseConnectionsId}azurequeues'
 
 resource tablesConnection 'Microsoft.Web/connections@2016-06-01' = {

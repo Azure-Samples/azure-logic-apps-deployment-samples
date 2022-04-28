@@ -14,10 +14,8 @@ param environment string = 'd'
 @description('The location of the deployment')
 param location string = resourceGroup().location
 
-var deploymentNameSuffix = uniqueString(deployment().name)
-
 module sharedResources 'shared.bicep' = {
-  name: 'shared-resource-deploy-${deploymentNameSuffix}'
+  name: '${deployment().name}-shared-resource-deploy'
   params: {
     storageAccountNamePrefix: appNamePrefix
     location: location
@@ -26,7 +24,7 @@ module sharedResources 'shared.bicep' = {
 }
 
 module connectors 'connectors.bicep' = {
-  name: 'connectors-deploy-${deploymentNameSuffix}'
+  name: '${deployment().name}-connectors-deploy'
   params: {
     storageAccountId: sharedResources.outputs.storageAccountId
     storageAccountName: sharedResources.outputs.storageAccountName
@@ -37,7 +35,7 @@ module connectors 'connectors.bicep' = {
 }
 
 module logicApp 'logic-app.bicep' = {
-  name: 'logic-app-deploy-${deploymentNameSuffix}'
+  name: '${deployment().name}-logic-app-deploy'
   params: {
     workflowNamePrefix: appNamePrefix
     environment: environment

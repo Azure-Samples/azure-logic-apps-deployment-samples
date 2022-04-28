@@ -40,3 +40,4 @@ stages:
           csmFile: $(Build.Repository.LocalPath)/$(sampleDirectory)/templates/main.bicep
           overrideParameters: -appNamePrefix $(appNamePrefix) -environment $(environment) -location $(location)
           deploymentMode: 'Incremental'
+          deploymentName: main-$(Build.BuildNumber)

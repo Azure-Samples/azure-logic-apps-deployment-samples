@@ -45,7 +45,7 @@ var locationAbbr = {
   //Add other location abbreviations as required.
 }
 var baseName = '${storageAccountNamePrefix}${environment}'
-var storageAccountName = toLower('${baseName}${locationAbbr[location]}')
+var storageAccountName = toLower('${baseName}${locationAbbr[location]}sa')
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2019-04-01' = {
   name: storageAccountName
