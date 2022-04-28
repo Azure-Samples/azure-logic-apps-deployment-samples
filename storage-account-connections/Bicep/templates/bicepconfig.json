@@ -1,0 +1,23 @@
+{
+  "analyzers": {
+    "core": {
+      "rules": {
+        "no-unused-params": {
+          "level": "error"
+        },
+        "no-unused-vars": {
+          "level": "error"
+        },
+        "no-loc-expr-outside-params" : {
+          "level": "error"
+        },
+        "outputs-should-not-contain-secrets" : {
+          "level": "error"
+        },
+        "no-hardcoded-location" : {
+          "level": "error"
+        }
+      }
+    }
+  }
+}
