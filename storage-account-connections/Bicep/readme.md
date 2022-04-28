@@ -240,11 +240,12 @@ This sample also implements these template and definition files:
 
 | File name | Description |
 |-----------|-------------|
-| [shared.bicep](./templates/shared.bicep) | This template creates a single storage account resource that has two blob containers, two storage queues, two file shares, and two storage tables. |
-| [connectors.bicep](./templates/connectors.bicep) | This template creates an API connection resource for Azure Tables, Files, Blobs, and Queues and outputs the values required for the workflow paramters. |
-| [logic-app.bicep](./templates/logic-app.bicep) | This template creates the Logic App Workflow resource and deploys the workflow by reading the workflow.json file dynamically. |
-| [workflow.json](./templates/workflow.json) | This file defines a basic logic app workflow that gets a message from `samplequeue1`, creates a blob file from the message content, writes an entity into the storage table, and creates a file in the file share. |
-| [workflow.parameters.json](./templates/workflow.parameters.json) | This file contains the structure required for the `$connections` parameter to be passed to the Logic App Workflow resource. This is not used by the sample directly, but can be used as a reference for the structure and required values of the parameter. |
+| [main.bicep](./templates/main.bicep) | This template orchestrates the deployment of the required resources using modules. Each of the other Bicep files are modules which are included in `main.bicep`. Dependencies are handled implicitly based upon module outputs being referenced in the parameters of other modules. This ensures that the Storage Account exists before the API Connections are created and that the API Connections exist before the Logic App is created. This is the entry point for the deployment and accepts one mandatory parameter which provides a prefix for all resource names. There are two optional parameters which allow the location and environment to be overriden. |
+| [shared.bicep](./templates/shared.bicep) | This template creates a single storage account resource that has two blob containers, two storage queues, two file shares, and two storage tables. Only one of each of these is used in the workflow, but will demonstrate the array looping capabilities of Bicep. |
+| [connectors.bicep](./templates/connectors.bicep) | This template creates an API connection resource for each of Azure Tables, Files, Blobs, and Queues and outputs the values required for the workflow parameters. |
+| [logic-app.bicep](./templates/logic-app.bicep) | This template creates the Logic App Workflow resource and deploys the workflow by reading the workflow.json file dynamically using `loadTextContent(...)`. |
+| [workflow.json](./templates/workflow.json) | This file is the "code" and defines a basic logic app workflow that is triggered by a message from `samplequeue1`, creates a blob file from the message content, writes an entity into the storage table, and creates a file in the file share. |
+| [workflow.parameters.json](./templates/workflow.parameters.json) | This file contains the structure required for the `$connections` parameter to be passed to the Logic App Workflow resource. This is not used by the sample directly, but can be used as a reference for the structure and required values of the parameter when authoring `logic-app.bicep`. |
 | [bicepconfig.json](./templates/bicepconfig.json) | This file contains configuration for how the Bicep tools will behave when working in VS Code and deploying using the CLI tools. |
 |||
 
