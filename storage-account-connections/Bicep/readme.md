@@ -169,7 +169,7 @@ To run this sample from the command line, follow these steps. You can use the Az
    or
 
    ```azurecli
-   az deployment group create --resource-group <resource-group-name> --template-file main.bicep  --parameters appNamePrefix='<short-app-name-prefix> '[environment='<environment>'] [location='<region-name>']
+   az deployment group create --resource-group <resource-group-name> --template-file main.bicep  --parameters appNamePrefix='<short-app-name-prefix>' [environment='<environment>'] [location='<region-name>']
    ```
 
    Where parameters in [square brackets] are optional.
