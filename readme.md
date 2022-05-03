@@ -19,5 +19,7 @@ To learn more about the different parts in these samples, review these topics:
 * [Azure function app actions](./function-app-actions/)
 * [Azure Service Bus connections](./service-bus-connections/)
 * [Azure storage account connections](./storage-account-connections/)
+  * [ARM Templates & PowerShell](./storage-account-connections/ARM-Templates/)
+  * [Bicep](./storage-account-connections/Bicep/)
 * [Integration account connections](./integration-account-connections/)
 * [API Management actions](./api-management-actions/)
