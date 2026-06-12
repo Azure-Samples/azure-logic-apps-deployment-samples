@@ -4,7 +4,7 @@ variables:
   abbrevLocationName: westus
   instanceCount: 1
   identifier: sample-storage-conn
-  sampleDirectory: storage-account-connections
+  sampleDirectory: storage-account-connections/ARM-Templates
   sharedResourceGroupIdentifier: shared
 
 trigger:

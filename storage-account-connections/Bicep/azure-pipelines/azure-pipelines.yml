@@ -1,0 +1,43 @@
+trigger:
+- main
+
+variables:
+  - name: azureServiceConnectionName
+    value: 'Azure Samples Subscription'
+  - name: appNamePrefix
+    value: stgconn
+  - name: resourceGroupPrefix
+    value: cse01
+  - name: location
+    value: westus
+  - name: sampleDirectory
+    value: storage-account-connections/Bicep
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+  - stage: Development
+    displayName: "Deploy Development Environment"
+    jobs:
+    - job: DeployDevelopmentEnvironment
+      displayName: "Deploy to Dev Environment"
+      variables:
+        - name: environment
+          value: d
+        - name: resourceGroupName
+          value: $(resourceGroupPrefix)-$(environment)-$(location)-rg
+      steps:
+      - task: AzureResourceManagerTemplateDeployment@3
+        displayName: "Deploy Logic App Infratructure"
+        inputs:
+          deploymentScope: 'Resource Group'
+          azureResourceManagerConnection: $(azureServiceConnectionName)
+          action: 'Create Or Update Resource Group'
+          resourceGroupName: $(resourceGroupName)
+          location: $(location)
+          templateLocation: 'Linked artifact'
+          csmFile: $(Build.Repository.LocalPath)/$(sampleDirectory)/templates/main.bicep
+          overrideParameters: -appNamePrefix $(appNamePrefix) -environment $(environment) -location $(location)
+          deploymentMode: 'Incremental'
+          deploymentName: main-$(Build.BuildNumber)

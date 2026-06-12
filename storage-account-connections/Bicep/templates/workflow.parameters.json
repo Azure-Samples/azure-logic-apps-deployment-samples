@@ -1,0 +1,26 @@
+{
+    "$connections": {
+        "value": {
+            "azuretables": {
+                "connectionId": "{tablesConnId}",
+                "connectionName": "azuretables",
+                "id": "{tablesManagedApiId}"
+            },
+            "azureblob": {
+                "connectionId": "{blobConnId}",
+                "connectionName": "azureblob",
+                "id": "{blobManagedApiId}"
+            },
+            "azurefile": {
+                "connectionId": "{fileConnId}",
+                "connectionName": "azurefile",
+                "id": "{fileManagedApiId}"
+            },
+            "azurequeues": {
+                "connectionId": "{queuesConnId}",
+                "connectionName": "azurequeues",
+                "id": "{queuesManagedApiId}"
+            }
+        }
+    }
+}

@@ -1,0 +1,134 @@
+{
+    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "$connections": {
+            "defaultValue": {},
+            "type": "Object"
+        }
+    },
+    "triggers": {
+        "When_there_are_messages_in_a_queue_(V2)": {
+            "recurrence": {
+                "frequency": "Second",
+                "interval": 10
+            },
+            "evaluatedRecurrence": {
+                "frequency": "Second",
+                "interval": 10
+            },
+            "splitOn": "@triggerBody()?['QueueMessagesList']?['QueueMessage']",
+            "type": "ApiConnection",
+            "inputs": {
+                "host": {
+                    "connection": {
+                        "name": "@parameters('$connections')['azurequeues']['connectionId']"
+                    }
+                },
+                "method": "get",
+                "path": "/v2/storageAccounts/@{encodeURIComponent(encodeURIComponent('AccountNameFromSettings'))}/queues/@{encodeURIComponent('samplequeue1')}/message_trigger"
+            }
+        }
+    },
+    "actions": {
+        "Create_blob_(V2)": {
+            "runAfter": {},
+            "type": "ApiConnection",
+            "inputs": {
+                "body": "@triggerBody()?['MessageText']",
+                "headers": {
+                    "ReadFileMetadataFromServer": true
+                },
+                "host": {
+                    "connection": {
+                        "name": "@parameters('$connections')['azureblob']['connectionId']"
+                    }
+                },
+                "method": "post",
+                "path": "/v2/datasets/@{encodeURIComponent(encodeURIComponent('AccountNameFromSettings'))}/files",
+                "queries": {
+                    "folderPath": "/samplecontainer1",
+                    "name": "@triggerBody()?['MessageId']",
+                    "queryParametersSingleEncoded": true
+                }
+            },
+            "runtimeConfiguration": {
+                "contentTransfer": {
+                    "transferMode": "Chunked"
+                }
+            }
+        },
+        "Create_file": {
+            "runAfter": {
+                "Insert_or_Replace_Entity": [
+                    "Succeeded"
+                ]
+            },
+            "type": "ApiConnection",
+            "inputs": {
+                "body": "@triggerBody()?['MessageText']",
+                "headers": {
+                    "ReadFileMetadataFromServer": true
+                },
+                "host": {
+                    "connection": {
+                        "name": "@parameters('$connections')['azurefile']['connectionId']"
+                    }
+                },
+                "method": "post",
+                "path": "/datasets/default/files",
+                "queries": {
+                    "folderPath": "/sampleshare1",
+                    "name": "@triggerBody()?['MessageId']",
+                    "queryParametersSingleEncoded": true
+                }
+            },
+            "runtimeConfiguration": {
+                "contentTransfer": {
+                    "transferMode": "Chunked"
+                }
+            }
+        },
+        "Delete_message_(V2)": {
+            "runAfter": {
+                "Create_file": [
+                    "Succeeded"
+                ]
+            },
+            "type": "ApiConnection",
+            "inputs": {
+                "host": {
+                    "connection": {
+                        "name": "@parameters('$connections')['azurequeues']['connectionId']"
+                    }
+                },
+                "method": "delete",
+                "path": "/v2/storageAccounts/@{encodeURIComponent(encodeURIComponent('AccountNameFromSettings'))}/queues/@{encodeURIComponent('samplequeue1')}/messages/@{encodeURIComponent(triggerBody()?['MessageId'])}",
+                "queries": {
+                    "popreceipt": "@triggerBody()?['PopReceipt']"
+                }
+            }
+        },
+        "Insert_or_Replace_Entity": {
+            "runAfter": {
+                "Create_blob_(V2)": [
+                    "Succeeded"
+                ]
+            },
+            "type": "ApiConnection",
+            "inputs": {
+                "body": {
+                    "Value": "@{triggerBody()?['MessageText']}"
+                },
+                "host": {
+                    "connection": {
+                        "name": "@parameters('$connections')['azuretables']['connectionId']"
+                    }
+                },
+                "method": "put",
+                "path": "/Tables/@{encodeURIComponent('sampleTable1')}/entities(PartitionKey='@{encodeURIComponent(triggerBody()?['MessageId'])}',RowKey='@{encodeURIComponent(triggerBody()?['MessageId'])}')"
+            }
+        }
+    },
+    "outputs": {}
+}
